@@ -1,0 +1,5 @@
+
+# Remove large file directories
+./MM/*
+./word2vec/trained-sources/*
+./word2vec/wiki_sv/*
