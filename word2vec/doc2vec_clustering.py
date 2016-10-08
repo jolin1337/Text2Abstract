@@ -33,24 +33,24 @@ def evaluate(article_offset=3000):
     model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
     data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
     
-    truePositives = 0
-    falsePositives = 0
+    confusionMat = [[0 for c2 in categories] for c1 in categories]
     i = 0
     for article, manart in data:
         if i < article_offset:
             i+=1
             continue
         idx = doc2vecCategoriser(article.content, centroids)
-        print idx, categories, article.category
+        # print idx, categories, article.category
         if idx < 0:
             print "No category found"
             exit()
-        if categories[idx] == article.category:
-            truePositives += 1
-        else:
-            falsePositives += 1
-        print "True positives: ", truePositives
-        print "False positives: ", falsePositives
+
+        cidx = categories.index(article.category)
+        confusionMat[cidx][idx] += 1
+
+    print '\t'.join(categories)
+    for index, row in enumerate(confusionMat):
+        print '\t'.join([str(num) for num in row]), '\t', categories[index]
     return True
 
 model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
@@ -68,7 +68,7 @@ def doc2vecCategoriser(article, centroids):
     for index, centroid in enumerate(centroids):
         centroid = numpy.array(centroid)
         similarity = numpy.dot(centroid / numpy.linalg.norm(centroid), artvec / numpy.linalg.norm(artvec))
-        print "Sim: ", similarity
+        # print "Sim: ", similarity
         if similarity > max_similarity:
             max_similarity = similarity
             idx = index
@@ -216,12 +216,14 @@ if __name__ == '__main__':
 
 
     # start the clustering
-    #centroids = doc2vecCluster(articleCount=3000, clusterOp=lambda cluster: handleCluster(cluster))
+    print "Training cluster algorithm"
+    centroids = doc2vecCluster(articleCount=2000, clusterOp=lambda cluster: handleCluster(cluster))
 
 
     # Initiate the wiki corpus file to be read
     #data = WikiCorpusDocuments(bz2.BZ2File('../svwiki-latest-pages-articles.xml.bz2'))
     
-    evaluate(article_offset=3000)
+    print "Evaluating"
+    evaluate(article_offset=2000)
 
     #doc2vecCategoriser(first_article.content, centroids)

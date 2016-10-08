@@ -13,7 +13,7 @@ RUN mkdir -p $SYNTAXNETDIR \
     && apt-get install git zlib1g-dev file swig python2.7 python-dev python-pip -y \
     && pip install --upgrade pip \
     && pip install -U protobuf==3.0.0b2 \
-    && pip install asciitree numpy python-env gensim \
+    && pip install asciitree scipy numpy python-env gensim \
     && pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl \
     && wget https://github.com/bazelbuild/bazel/releases/download/0.2.2b/bazel-0.2.2b-installer-linux-x86_64.sh \
     && chmod +x bazel-0.2.2b-installer-linux-x86_64.sh \
@@ -40,3 +40,8 @@ RUN mkdir swe_model \
 	&& cd ..
 
 CMD /root/models/syntaxnet/models/parsey_universal/parse.sh $SYNTAXNETDIR/models/syntaxnet/swe_model
+
+# To build
+# > docker build -t swe_syntax .
+# To run
+# > docker run -v c:/Users/desktop-godesity/Documents/AI-journalisten/:/opt/Text2Abstract -ti swe_syntaxnet bash
