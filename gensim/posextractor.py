@@ -77,7 +77,7 @@ def readPOSFromConll(fileName, max_pos=0):
 			posContent += line + "\n"
 	return poses
 
-from doc2vec_documents import manipulateArticle
+from gensim_documents import manipulateArticle
 def extractPOSArticlesWithCategories(categories=[]):
 	cats = []
 	files = []

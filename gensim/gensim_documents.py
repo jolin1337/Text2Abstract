@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import gensim
+from os import listdir
+
 
 
 # An article class to represent an article/document
@@ -66,7 +68,7 @@ class WikiCorpusDocuments(object):
             if self.useLabeldTraining:
                 yield gensim.models.doc2vec.LabeledSentence(words=doc.split(), tags=['SENT_%s' % pageid, title])
             else:
-                yield (articleObj, doc)
+                yield article.split() #(articleObj, doc)
     
 
 # Remove all non word characters
@@ -107,3 +109,23 @@ class MMDBDocuments(object):
             else:
                 yield (article, manipulateArticle(articleContent))
 
+class MMDBDocumentLists(object):
+    def __init__(self, dir, limit=-1, useLabeldTraining=False):
+        self.dir = dir
+        self.limit = limit
+        self.useLabeldTraining = useLabeldTraining
+    def __iter__(self):
+        files = [iter(MMDBDocuments(self.dir + '/' + f, self.limit, self.useLabeldTraining)) for f in listdir(self.dir) if f.endswith('.csv')]
+        i = -1
+        file_count = len(files)
+        while file_count > 0:
+            i = (i+1) % file_count
+            try:
+                # print files, file_count
+                yield files[i].next()
+
+            except StopIteration as e:
+                files.remove(files[i])
+                i -= 1
+                file_count -= 1
+        raise StopIteration

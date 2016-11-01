@@ -10,7 +10,7 @@ import bz2
 import tensorflow_cluster as clusterAlgs
 
 from PyTeaser.pyteaser import Summarize
-from doc2vec_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments
+from gensim_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments, MMDBDocumentLists
 import numpy
 from collections import Counter
 import dotenv
@@ -31,21 +31,28 @@ def evaluate(article_offset=3000):
 
     # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
     model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
-    data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
+    data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
     
     confusionMat = [[0 for c2 in categories] for c1 in categories]
     i = 0
-    for article, manart in data:
-        if i < article_offset:
-            i+=1
+    for i, (article, manart) in enumerate(data):
+        if i < article_offset: # or i > 10000:
             continue
+        # print article.content, article.category
         idx = doc2vecCategoriser(article.content, centroids)
         # print idx, categories, article.category
-        if idx < 0:
+        if idx < 0 or idx >= len(categories):
             print "No category found"
-            exit()
+            print idx, cidx, len(categories)
+            continue
 
-        cidx = categories.index(article.category)
+        category = article.category.lower().replace('&', 'o')
+        if not category in categories:
+            print "Unkown category detected"
+            print category, categories
+            continue
+        cidx = categories.index(category)
+
         confusionMat[cidx][idx] += 1
 
     print '\t'.join(categories)
@@ -80,10 +87,10 @@ def doc2vecCategoriser(article, centroids):
 #   - articleCount as the maximum number of articles
 #   - nrofclusters as the cluster count
 #   - clusterOp as a callback function to manage each cluster content
-def doc2vecCluster(articleCount = 3000, nrofclusters = 2, clusterOp = None):
+def doc2vecCluster(articleCount = 3000, nrofclusters = 24, clusterOp = None):
     # Initiate the wiki corpus file to be read
     #data = WikiCorpusDocuments(bz2.BZ2File('../svwiki-latest-pages-articles.xml.bz2'))
-    data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
+    data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
     # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
     model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
 
@@ -122,7 +129,7 @@ def doc2vecCluster(articleCount = 3000, nrofclusters = 2, clusterOp = None):
         articleVectors.append(vector)
         #articles.append(article.content)
         articles.append(summaries)
-        articleCategories.append(article.category)
+        articleCategories.append(article.category.lower().replace('&', 'o'))
         c+=1 
 
     logger.info("Num of articles: %s " % len(articles))
@@ -161,6 +168,7 @@ if __name__ == '__main__':
     # This function just prints the clusters title for an example
     idx = 0
     def handleCluster(cluster):
+        return
         global idx
         # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
         model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
@@ -217,13 +225,29 @@ if __name__ == '__main__':
 
     # start the clustering
     print "Training cluster algorithm"
-    centroids = doc2vecCluster(articleCount=2000, clusterOp=lambda cluster: handleCluster(cluster))
+    centroids = doc2vecCluster(articleCount=1000, nrofclusters=7, clusterOp=lambda cluster: handleCluster(cluster))
 
 
     # Initiate the wiki corpus file to be read
-    #data = WikiCorpusDocuments(bz2.BZ2File('../svwiki-latest-pages-articles.xml.bz2'))
+    # data = WikiCorpusDocuments(bz2.BZ2File('wiki_sv/svwiki-latest-pages-articles.xml.bz2'), useLabeldTraining=False)
     
     print "Evaluating"
-    evaluate(article_offset=2000)
+    evaluate(article_offset=1000)
+    exit()
+    # SPort article
+
+    #model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+    
+    lsi = gensim.models.lsimodel.LsiModel.load('wiki_sv/wiki_sv_lsi')
+    tfidf = gensim.models.TfidfModel.load('wiki_sv/wiki_sv.tfidf_model')
+    #dictionary = gensim.corpora.Dictionary.from_documents(data)
+    #dictionary.save('wiki_sv/wiki_sv.dict')
+    dictionary = gensim.corpora.Dictionary.load('wiki_sv/wiki_sv.dict')
+    art1 = 'Marie Munters från Dala-Järna, bor sedan en tid tillbaka i Brasilien, där hon jobbar som beridare i en stor ridklubb.Marie, som representerar Vansbro Ryttarsällskap, tävlar också också i Sydamerika och nyligen nådde hon fina framgångar i en dressyrtävling.Med hästen Donfire S:t George slutade Marie 1:a i Intermediate freestyle och 2:a i Intermediate.Med hästen Crossy blev det en 2:a plats i Grand Prix freestyle och en 3:e plats i Grand Prix.'
+    art2 = art1 #[5:]
+    art_vec = dictionary.doc2bow(art1.split())
+    art_vec = lsi[tfidf[art_vec]]
+    print dictionary.get(art_vec.index(max(art_vec)), '::')
+    print model.docvecs.similarity_unseen_docs(model, art1.split(), art2.split())
 
     #doc2vecCategoriser(first_article.content, centroids)

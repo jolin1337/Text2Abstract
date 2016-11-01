@@ -14,7 +14,7 @@ from os.path import isfile, join
 from pyteaser import Summarize
 
 from numpy import dot, sqrt
-from doc2vec_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments
+from gensim_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments
 
 def ldaLsiModeling():
     # load id->word mapping (the dictionary), one of the results of step 2 above
