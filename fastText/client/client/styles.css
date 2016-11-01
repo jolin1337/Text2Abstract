@@ -1,0 +1,96 @@
+body {
+  font-family: Arial; }
+
+.bg {
+  background-image: url(wordcloud.svg), url(bg.png);
+  opacity: 0.1;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-size: cover, cover; }
+
+.godesity {
+  position: fixed;
+  bottom: 3px;
+  right: 3px;
+  width: 11%;
+  height: auto;
+  z-index: 10; }
+  .godesity img {
+    position: relative;
+    width: 100%; }
+
+.categories {
+  position: absolute;
+  bottom: 50%;
+  left: 12%;
+  width: 76%;
+  padding: 15px 0;
+  text-align: center; }
+  .categories .category {
+    background-color: #eef;
+    border: 4px double green;
+    padding: 10px;
+    margin: 7px;
+    border-radius: 5px;
+    display: inline-block; }
+
+.user-input {
+  position: absolute;
+  top: 50%;
+  left: 12%;
+  width: 76%;
+  height: 40%; }
+  .user-input .large-text {
+    margin: 3% 0;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 30px;
+    color: #222;
+    background-color: rgba(255, 255, 255, 0.6); }
+  .user-input .submit {
+    padding: 15px;
+    width: 100%;
+    font-size: 15pt; }
+
+::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30pt;
+  text-align: center;
+  font-family: Arial; }
+
+::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30pt;
+  text-align: center;
+  font-family: Arial; }
+
+::-moz-placeholder {
+  /* Firefox 19+ */
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30pt;
+  text-align: center;
+  font-family: Arial; }
+
+:-ms-input-placeholder {
+  /* IE 10+ */
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30pt;
+  text-align: center;
+  font-family: Arial; }
+
+:-moz-placeholder {
+  /* Firefox 18- */
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 30pt;
+  text-align: center;
+  font-family: Arial; }
+
+/*# sourceMappingURL=styles.css.map */
