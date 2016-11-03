@@ -18,7 +18,7 @@ router.post('/fetch_categories', bodyParser.urlencoded({ extended: false }), fun
 	var text = request.body.text.replace(/\n/gm, ' ');
 	//return response.end(JSON.stringify({"keywords": [{"label": 'Sport', "probability":0.9992}], "abstract": text}));
 	async.parallel([function(callback) {
-		const classifier = child_process.spawn('./fasttext', ['predict-prob', 'sv_model/ekonomi_sport_model.bin', '-', '2'])
+		const classifier = child_process.spawn('./fasttext', ['predict-prob', 'sv_model/all_model.bin', '-', '14'])
 		//classifier.on("error", function(e) {console.log(":(");callback(true, {});});
 		classifier.stdin.setEncoding('utf-8');
 		classifier.stdin.write(text + "\n");
@@ -38,7 +38,7 @@ router.post('/fetch_categories', bodyParser.urlencoded({ extended: false }), fun
 				}
 			}).sort(function(a, b) {return b.probability - a.probability});
 			var certainKeywords = keywords.filter(function(prediction) {
-				return prediction.probability > 0.7;
+				return prediction.probability > 1/keywords.length;
 			})
 			if(certainKeywords.length > 0)
 				callback(false, {keywords: certainKeywords});
