@@ -35,17 +35,17 @@ function fetchCategories(text, callback) {
 window.addEventListener('load', function() {
 	var timeOutNumber = -1;
 	document.querySelector('.large-text').addEventListener('input', function(event) {
-		console.log(event.target.value);
 		clearTimeout(timeOutNumber);
 		timeOutNumber = setTimeout(function() {
+			var container = document.querySelector('.categories');
+			container.classList.add('loading');
+			while(container.firstChild) {
+				container.removeChild(container.firstChild);
+			}
+			document.querySelector('.summary').innerHTML = "";
 			fetchCategories(event.target.value, function (response) {
-				var container = document.querySelector('.categories');
-				while(container.firstChild) {
-					container.removeChild(container.firstChild);
-				}
 				for(var i in response.keywords) {
 					var category = response.keywords[i];
-					category.label = category.label;
 					var categoryElm = document.createElement('span');
 					categoryElm.classList.add('category');
 					categoryElm.style.borderColor = goodorbadColor(category.probability);
@@ -54,6 +54,7 @@ window.addEventListener('load', function() {
 					container.appendChild(categoryElm);
 				}
 				document.querySelector('.summary').innerHTML = response.abstract;
+				container.classList.remove('loading');
 			});
 		}, 1000);
 	});
