@@ -6,17 +6,21 @@ FROM java:8
 MAINTAINER Johannes Lindén <johannes@godesity.se>
 
 ENV SYNTAXNETDIR=/opt/tensorflow PATH=$PATH:/root/bin
+ENV TEXT2ABSTRACT_DIR=/opt/Text2Abstract
 
-RUN mkdir -p $SYNTAXNETDIR \
-    && cd $SYNTAXNETDIR \
-    && apt-get update \
+RUN mkdir -p $SYNTAXNETDIR && mkdir -p TEXT2ABSTRACT_DIR
+WORKDIR $TEXT2ABSTRACT_DIR
+RUN apt-get update \
     && apt-get install git zlib1g-dev file swig python2.7 python-dev python-pip -y \
+    && apt-get install nodejs-legacy npm -y \
     && pip install --upgrade pip \
-    && pip install -U protobuf==3.0.0b2
-RUN cd $SYNTAXNETDIR \
+    && pip install -U protobuf==3.0.0b2 \
     && pip install asciitree scipy numpy python-env gensim \
-    && pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
-# RUN cd $SYNTAXNETDIR \
+	&& npm install express body-parser async
+EXPOSE 3000
+
+WORKDIR $SYNTAXNETDIR
+# RUN pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
 #     && wget https://github.com/bazelbuild/bazel/releases/download/0.3.1/bazel-0.3.1-installer-linux-x86_64.sh \
 #     && chmod +x bazel-0.3.1-installer-linux-x86_64.sh \
 #     && ./bazel-0.3.1-installer-linux-x86_64.sh --user \
@@ -42,6 +46,6 @@ RUN cd $SYNTAXNETDIR \
 # CMD /root/models/syntaxnet/models/parsey_universal/parse.sh $SYNTAXNETDIR/models/syntaxnet/swe_model
 
 # To build
-# > docker build -label swe_syntaxnet .
+# > docker build --label text2abstract .
 # To run
-# > docker run -v c:/Users/desktop-godesity/Documents/Text2Abstract/:/opt/Text2Abstract -ti swe_syntaxnet bash
+# > docker run -v c:/Users/desktop-godesity/Documents/Text2Abstract/:/opt/Text2Abstract -ti text2abstract bash
