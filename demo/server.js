@@ -13,12 +13,17 @@ router.use(express.static(path.resolve(__dirname, 'client')));
 const child_process = require('child_process');
 
 
-router.post('/fetch_categories', bodyParser.urlencoded({ extended: false }), function (request, response) {
+router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false }), function (request, response) {
 	if (!request.body || !request.body.text) return response.sendStatus(400);
+	var algorithm = request.params.algorithm;
+	console.log(algorithm);
 	var text = request.body.text.replace(/\n/gm, ' ');
 	//return response.end(JSON.stringify({"keywords": [{"label": 'Sport', "probability":0.9992}], "abstract": text}));
 	async.parallel([function(callback) {
-		const classifier = child_process.spawn('./fasttext', ['predict-prob', 'sv_model/all_model.bin', '-', '14'])
+		if(algorithm == 'k-means')
+			var classifier = child_process.spawn('../gensim/kmeans', ['../gensim/centroid.txt']);
+		else
+			var classifier = child_process.spawn('../fastText/fasttext', ['predict-prob', '../fastText/sv_model/all_model.bin', '-', '14'])
 		//classifier.on("error", function(e) {console.log(":(");callback(true, {});});
 		classifier.stdin.setEncoding('utf-8');
 		classifier.stdin.write(text + "\n");

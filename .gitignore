@@ -3,3 +3,12 @@
 ./MM/*
 ./word2vec/trained-sources/*
 ./word2vec/wiki_sv/*
+./fastText/fasttext
+
+node_modules
+
+*.o
+*.bin
+*.vec2
+*.vec1
+*.pyc
