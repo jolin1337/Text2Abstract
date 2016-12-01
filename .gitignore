@@ -3,10 +3,11 @@
 ./MM/*
 ./word2vec/trained-sources/*
 ./word2vec/wiki_sv/*
-./fastText/fasttext
+fasttext
 
 node_modules
 
+.sass-cache
 *.o
 *.bin
 *.vec2
