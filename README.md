@@ -40,9 +40,29 @@ The way to achieve this accuracy in the method, FastText classification is to:
 * Test fasttext with 70 % of the dataset
 
 ### K-means clustering
-The following table shows a confusion matrix of the evaluation:
+The following table shows a confusion matrix of the evaluation (half of gensim doc2vec articles):
 | Ekonomi | Sport  | .       |
-|:-------:|:------:|:-------:|
+|:------- |:------ | -------:|
+| 9247    | 514    | ekonomi |
+| 1950    | 30583  | sport   |
+
+The accuracy, presicion and recall is calculated as:
+```
+tp = 9247
+tn = 30583
+fp = 514
+fn = 1950
+Accuracy = (tp + tn) / (tp + fp + tn + fn) 
+         = 0.9417411453161205 ~ 94 %
+Precision = tp / (tp + fp)
+          = 0.9473414609158898
+Recall = tp / (tp + fn)
+       = 0.8258462088059302
+F-score = 2 * Precision * Recall / (Precision + Recall)
+        = 0.882431529726119
+
+| Ekonomi | Sport  | .       |
+|:------- |:------ | -------:|
 | 9639    | 122    | Ekonomi |
 | 3594    | 27939  | Sport   |
 
