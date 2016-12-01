@@ -10,7 +10,7 @@ function transferFailed(error) {
 }
 
 function fetchCategories(text, callback) {
-	var url = "/fetch_categories/";
+	var url = "/text2abstract/fasttext";
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', function(response) {
 		console.log(response);
@@ -44,6 +44,9 @@ window.addEventListener('load', function() {
 			}
 			document.querySelector('.summary').innerHTML = "";
 			fetchCategories(event.target.value, function (response) {
+				while(container.firstChild) {
+					container.removeChild(container.firstChild);
+				}
 				for(var i in response.keywords) {
 					var category = response.keywords[i];
 					var categoryElm = document.createElement('span');
