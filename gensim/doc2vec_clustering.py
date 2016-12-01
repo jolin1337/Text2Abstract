@@ -31,7 +31,8 @@ def evaluate(article_offset=3000):
 
     # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
     model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
-    data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
+    # data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
+    data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
     
     confusionMat = [[0 for c2 in categories] for c1 in categories]
     i = 0
@@ -90,7 +91,8 @@ def doc2vecCategoriser(article, centroids):
 def doc2vecCluster(articleCount = 3000, nrofclusters = 24, clusterOp = None):
     # Initiate the wiki corpus file to be read
     #data = WikiCorpusDocuments(bz2.BZ2File('../svwiki-latest-pages-articles.xml.bz2'))
-    data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
+    data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
+    # data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
     # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
     model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
 
@@ -225,14 +227,14 @@ if __name__ == '__main__':
 
     # start the clustering
     print "Training cluster algorithm"
-    centroids = doc2vecCluster(articleCount=1000, nrofclusters=7, clusterOp=lambda cluster: handleCluster(cluster))
+    # centroids = doc2vecCluster(articleCount=2000, nrofclusters=2, clusterOp=lambda cluster: handleCluster(cluster))
 
 
     # Initiate the wiki corpus file to be read
     # data = WikiCorpusDocuments(bz2.BZ2File('wiki_sv/svwiki-latest-pages-articles.xml.bz2'), useLabeldTraining=False)
     
     print "Evaluating"
-    evaluate(article_offset=1000)
+    evaluate(article_offset=2000)
     exit()
     # SPort article
 

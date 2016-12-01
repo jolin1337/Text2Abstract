@@ -6,12 +6,11 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 import gensim
 import bz2
-import tensorflowCluster as clusterAlgs
 
 from os import listdir
 from os.path import isfile, join
 
-from pyteaser import Summarize
+from PyTeaser.pyteaser import Summarize
 
 from numpy import dot, sqrt
 from gensim_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments
@@ -71,7 +70,10 @@ def loadTxtData(folder):
 def loadWikiData(fileName):
     pass
 
-def traindoc2vec(sentence, model_filename='doc2vec.model'):
+def traindoc2vec(sentence, model_filename='tmp.model'):
+    # model = gensim.models.Doc2Vec(sentence, alpha=0.025, min_alpha=0.025) # use fixed learning rate
+    # model.save(model_filename)
+    # return
     model = gensim.models.Doc2Vec(alpha=0.025, min_alpha=0.025) # use fixed learning rate
     model.build_vocab(sentence)
 
@@ -85,13 +87,13 @@ def doc2vecModeling(limit=5000):
     # Three different methods of loading the data comment one out to use the other
     # data = loadTxtData("doc2vec-sources")
     #data = WikiCorpusDocuments(bz2.BZ2File('../svwiki-latest-pages-articles.xml.bz2'), limit)
-    data = MMDBDocuments('/home/admin16/Documents/MM/articles_EkonomiSport.csv', useLabeldTraining=True)
+    data = MMDBDocuments('/home/admin16/Documents/MM/articles_EkonomiSport.csv', limit=3000, useLabeldTraining=True)
     
 
     # Load or train the model of doc2vec 
     # additional params: size=300, window=10, min_count=5, workers=11,
     model = gensim.models.Doc2Vec.load('../doc2vec_wiki.model')
-    #model = traindoc2vec(data)
+    # model = traindoc2vec(data, 'trained-sources/doc2vec_3000a.model')
 
     prevTitle = ""
     prevArtikel = ""
@@ -144,5 +146,5 @@ def doc2vecModeling(limit=5000):
 
 
 if __name__ == '__main__':
-    data = MMDBDocuments('/home/admin16/Documents/MM/articles_EkonomiSport.csv', limit=10000, useLabeldTraining=True)
-    traindoc2vec(data, model_filename='doc2vec_MM.model')
+    data = MMDBDocuments('../MM/articles_EkonomiSport.csv', limit=3000, useLabeldTraining=True)
+    traindoc2vec(data, model_filename='doc2vec_MM_3000a.model')
