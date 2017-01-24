@@ -1,8 +1,11 @@
 
 # Remove large file directories
-./MM/*
-./word2vec/trained-sources/*
-./word2vec/wiki_sv/*
+MM/*
+word2vec/trained-sources/*
+word2vec/wiki_sv/*
+gensim/wiki_sv/*
+gensim/trained-sources/*
+UD_Swedish*
 fasttext
 
 node_modules

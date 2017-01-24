@@ -10,16 +10,35 @@ ENV TEXT2ABSTRACT_DIR=/opt/Text2Abstract
 
 RUN mkdir -p $SYNTAXNETDIR && mkdir -p TEXT2ABSTRACT_DIR
 WORKDIR $TEXT2ABSTRACT_DIR
+
+# Update and install dependencies
 RUN apt-get update \
     && apt-get install git zlib1g-dev file swig python2.7 python-dev python-pip -y \
-    && apt-get install nodejs-legacy npm -y \
-    && pip install --upgrade pip \
-    && pip install -U protobuf==3.0.0b2 \
-    && pip install asciitree scipy numpy python-env gensim \
-	&& npm install express body-parser async
-EXPOSE 3000
+    && apt-get install nodejs-legacy npm -y
 
-WORKDIR $SYNTAXNETDIR
+#install node
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.11.1/install.sh | bash \
+	&& . ~/.profile \
+	&& nvm install 4.0.0 \
+	&& nvm use 4.0.0 \
+	&& nvm alias default 4.0.0 \
+	&& npm install express body-parser async \
+	&& npm install -g vue-cli  \
+	&& npm install -g babel-preset-es2015
+
+
+# Upgrading pip
+RUN pip install --upgrade pip \
+    && pip install -U protobuf==3.0.0b2
+# Install math dependencies in python pip
+RUN pip install --user asciitree \
+    && pip install --user numpy scipy \
+    && pip install  --user python-env gensim
+
+EXPOSE 3000
+EXPOSE 8080
+
+# WORKDIR $SYNTAXNETDIR
 # RUN pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
 #     && wget https://github.com/bazelbuild/bazel/releases/download/0.3.1/bazel-0.3.1-installer-linux-x86_64.sh \
 #     && chmod +x bazel-0.3.1-installer-linux-x86_64.sh \
@@ -42,10 +61,16 @@ WORKDIR $SYNTAXNETDIR
 # 	&& wget http://download.tensorflow.org/models/parsey_universal/Swedish.zip \
 # 	&& unzip Swedish.zip \
 # 	&& cd ..
-
+RUN echo 'export NVM_DIR="/root/.nvm"' >> ~/.bashrc
+RUN echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
 # CMD /root/models/syntaxnet/models/parsey_universal/parse.sh $SYNTAXNETDIR/models/syntaxnet/swe_model
-
+CMD bash
 # To build
-# > docker build --label text2abstract .
+# > docker build -t text2abstract:v1.0.0 .
 # To run
-# > docker run -v c:/Users/desktop-godesity/Documents/Text2Abstract/:/opt/Text2Abstract -ti text2abstract bash
+# > docker run -p from-port:to-port -v c:/Users/desktop-godesity/Documents/Text2Abstract/:/opt/Text2Abstract -ti text2abstract:v1.0.0 bash
+#
+# To stop all containers from running (do before remove all containers)
+# docker stop $(docker ps -a -q)
+# To remove all containers
+# docker rm $(docker ps -a -q)

@@ -2,7 +2,6 @@ function goodorbadColor(howmuch) {
 	var redAmount = Math.min(2 * (1 - howmuch), 1);
 	var greenAmount = Math.min(howmuch * 2, 1);
 	var res = "rgba(" + parseInt(redAmount * 255) + ", " + parseInt(greenAmount * 255) + ", 0, 0.7)";
-	console.log(res);
 	return res;
 }
 function transferFailed(error) {
