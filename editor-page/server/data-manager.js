@@ -3,12 +3,12 @@ var Promise = require('promise');
 var data = {
 	items: [{
 		textId: "aaa",
-		text: "hej",
+		text: "Default red Test 1",
 		type: "summary",
 		color: "#00f"
 	},{
 		textId: "bbb",
-		text: "ad",
+		text: "Default green Test 2",
 		type: "summary",
 		color: "#0f0"
 	}, {

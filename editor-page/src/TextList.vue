@@ -77,7 +77,7 @@ export default {
 						if(item.textId == data.items[j].textId) {
 							var itemType = item.type;
 							var otherItemType = data.items[j].type;
-							item = Object.assign(item, data.items[j]);
+							item = Object.assign(item, data.items[j]); 
 							if(itemType instanceof Array)
 								itemType.push(otherItemType);
 							else itemType = [itemType];

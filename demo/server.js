@@ -20,7 +20,7 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 	var text = request.body.text.replace(/\n/gm, ' ');
 	var current_date = (new Date()).valueOf().toString();
 	var random = Math.random().toString();
-	var textId = crypto.createHash('sha1').update(current_date + random).digest('hex');
+	var textId = crypto.createHash('sha1').update(text/*current_date + random*/).digest('hex');
 	// var textId = new Date().getTime();
 	//return response.end(JSON.stringify({"keywords": [{"label": 'Sport', "probability":0.9992}], "abstract": text}));
 	async.parallel([
@@ -37,6 +37,7 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 			}, function(response) {
 				// console.log(response); // Should be {success: true}
 			});
+			callback(false, {original: text});
 		},
 		function(callback) {
 			if(algorithm == 'k-means')
@@ -102,13 +103,13 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 					method: 'POST',
 					form: item
 				}, function(response) {
-					console.log(response);
-					callback(false, {abstract: newText});
+					// console.log(response); // Should be {success: true}
 				});
+				callback(false, {abstract: newText});
 			})
 		}
 	], function(err, result) {
-			response.end(JSON.stringify(Object.assign({}, result[0], result[1])));
+		response.end(JSON.stringify(Object.assign({}, result[1], result[2])));
 	});
 });
 
