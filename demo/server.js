@@ -36,15 +36,15 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 				form: item
 			}, function(response) {
 				// console.log(response); // Should be {success: true}
-			});
+			}, function(){});
 			callback(false, {original: text});
 		},
 		function(callback) {
 			if(algorithm == 'k-means')
-				var classifier = child_process.spawn('../gensim/kmeans', ['../gensim/centroid.txt']);
+				var classifier = child_process.spawn('python', ['../gensim/kmeans.py', '../gensim/trained-sources/centroids_2categories.txt']);
 			else
 				var classifier = child_process.spawn('../fastText/fasttext', ['predict-prob', '../fastText/sv_model/all_model.bin', '-', '14'])
-			//classifier.on("error", function(e) {console.log(":(");callback(true, {});});
+			classifier.on("error", function(e) {console.log(e);callback(true, {});});
 			classifier.stdin.setEncoding('utf-8');
 			classifier.stdin.write(text + "\n");
 			classifier.stdin.end();
@@ -78,7 +78,7 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 					form: item
 				}, function(response) {
 					// console.log(response); // Should be {success: true}
-				});
+				}, function(){});
 				callback(false, {keywords: certainKeywords});
 			});
 		}, function(callback) {
@@ -104,7 +104,7 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 					form: item
 				}, function(response) {
 					// console.log(response); // Should be {success: true}
-				});
+				}, function(){});
 				callback(false, {abstract: newText});
 			})
 		}

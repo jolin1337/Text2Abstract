@@ -9,10 +9,10 @@ function transferFailed(error) {
 }
 
 function fetchCategories(text, callback) {
-	var url = "/text2abstract/fasttext";
+	// var url = "/text2abstract/fasttext";
+	var url = "/text2abstract/k-means";
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', function(response) {
-		console.log(response);
 		if(typeof callback == "function") {
 			var json = {error: ":("};
 			try {

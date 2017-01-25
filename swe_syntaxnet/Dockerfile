@@ -33,7 +33,8 @@ RUN pip install --upgrade pip \
 # Install math dependencies in python pip
 RUN pip install --user asciitree \
     && pip install --user numpy scipy \
-    && pip install  --user python-env gensim
+    && pip install  --user python-env gensim \
+	&& pip install tensorflow
 
 EXPOSE 3000
 EXPOSE 8080

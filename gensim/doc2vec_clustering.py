@@ -16,6 +16,30 @@ from collections import Counter
 import dotenv
 dotenv.load()
 
+def categoriseText(text, centroid_file):
+    centroids = []
+    categories = []
+    for line in centroid_file:
+        if len(categories) == 0:
+            categories = line[:-1].split(';')
+        elif len(centroids) == 0:
+            centroids = [[float(number) for number in numbers.split(',')] for numbers in line.split('; ')]
+        else:
+            break
+    if len(categories) == 0 or len(centroids) == 0:
+        return False
+
+    # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
+    model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+    # data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category')
+    data = MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles_EkonomiSport.csv')
+    
+    idxs = doc2vecCategoriser(text, centroids)
+    categorised = {}
+    for index, category in enumerate(categories):
+        categorised[category] = idxs[index]
+    return categorised
+
 def evaluate(article_offset=3000):
     centroid_file = open('trained-sources/centroids.txt', 'r')
     centroids = []
@@ -40,7 +64,7 @@ def evaluate(article_offset=3000):
         if i < article_offset: # or i > 10000:
             continue
         # print article.content, article.category
-        idx = doc2vecCategoriser(article.content, centroids)
+        idx = doc2vecCategoriser(article.content, centroids, most_similar=True)
         # print idx, categories, article.category
         if idx < 0 or idx >= len(categories):
             print "No category found"
@@ -62,7 +86,7 @@ def evaluate(article_offset=3000):
     return True
 
 model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
-def doc2vecCategoriser(article, centroids):
+def doc2vecCategoriser(article, centroids, most_similar=False, least_similar=False):
     global model
     logger = logging.getLogger('doc2vec')
 
@@ -72,16 +96,26 @@ def doc2vecCategoriser(article, centroids):
     artvec = model.infer_vector(manipulateArticle(sumart).split())
     artvec = numpy.array(artvec)
     max_similarity = -1000000
+    idxs = numpy.zeros(len(centroids), dtype=numpy.float)
     idx = -1
     for index, centroid in enumerate(centroids):
         centroid = numpy.array(centroid)
         similarity = numpy.dot(centroid / numpy.linalg.norm(centroid), artvec / numpy.linalg.norm(artvec))
+        idxs[index] = similarity
         # print "Sim: ", similarity
         if similarity > max_similarity:
             max_similarity = similarity
             idx = index
-    # print idx, min_similarity
-    return idx
+
+    idxs = (idxs + 1.0) / 2.0
+    idxs = idxs / numpy.sum(idxs)
+    if most_similar and least_similar:
+        return [numpy.argmin(idxs), numpy.argmax(idxs)]
+    elif most_similar:
+        return numpy.argmax(idxs)
+    elif least_similar:
+        return numpy.argmin(idxs)
+    return idxs.tolist()
 
 
 # This function initiates the clustering with 
