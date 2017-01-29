@@ -1,0 +1,25 @@
+{
+  "name": "text2abstract",
+  "description": "An app that predicts the category and summary of an unformated text",
+  "version": "1.0.0",
+  "author": "Johannes Lindén",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "async": "*",
+    "body-parser": "*",
+    "crypto": "*",
+    "express": "*",
+    "request": "*"
+  },
+  "keywords": [
+    "Abstract",
+    "Text2abstract",
+    "Neural network",
+    "Machine learning",
+    "Classification",
+    "Categorization"
+  ]
+}
