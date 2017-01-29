@@ -5,7 +5,7 @@
   "author": "Johannes Lindén",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node demo/server.js"
   },
   "dependencies": {
     "async": "*",
