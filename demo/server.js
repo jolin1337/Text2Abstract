@@ -113,7 +113,7 @@ router.post('/text2abstract/:algorithm', bodyParser.urlencoded({ extended: false
 	});
 });
 
-server.listen(process.env.DEMO_PORT || 8080, process.env.DEMO_IP || "0.0.0.0", function(){
+server.listen(process.env.DEMO_PORT || process.env.PORT || 8080, process.env.DEMO_IP || "0.0.0.0", function(){
 	var addr = server.address();
 	console.log("Server listening at", addr.address + ":" + addr.port);
 });
