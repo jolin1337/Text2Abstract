@@ -10,7 +10,8 @@ function transferFailed(error) {
 
 function fetchCategories(text, callback) {
 	// var url = "/text2abstract/fasttext";
-	var url = "/text2abstract/k-means";
+	var select = document.getElementById('method');
+	var url = "/text2abstract/" + (select.value || 'k-means');
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', function(response) {
 		if(typeof callback == "function") {
