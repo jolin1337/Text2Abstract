@@ -1,0 +1,209 @@
+Comparing:  Allmänt  with  Blåljus
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.658291457286
+
+Comparing:  Allmänt  with  Ekonomi
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.744974874372
+
+Comparing:  Allmänt  with  Kultur
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.759294265911
+
+Comparing:  Allmänt  with  Nöje
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.771266540643
+
+Comparing:  Allmänt  with  Släkt o vänner
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.721901091843
+
+Comparing:  Allmänt  with  Sport
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.742675159236
+
+Comparing:  Blåljus  with  Allmänt
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.67148241206
+
+Comparing:  Blåljus  with  Ekonomi
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.75516593613
+
+Comparing:  Blåljus  with  Kultur
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.855527638191
+
+Comparing:  Blåljus  with  Nöje
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.809165097301
+
+Comparing:  Blåljus  with  Släkt o vänner
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.758157389635
+
+Comparing:  Blåljus  with  Sport
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.732868020305
+
+Comparing:  Ekonomi  with  Allmänt
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.754396984925
+
+Comparing:  Ekonomi  with  Blåljus
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.748904195366
+
+Comparing:  Ekonomi  with  Kultur
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.724874371859
+
+Comparing:  Ekonomi  with  Nöje
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.682988072819
+
+Comparing:  Ekonomi  with  Släkt o vänner
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.714011516315
+
+Comparing:  Ekonomi  with  Sport
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.727791878173
+
+Comparing:  Kultur  with  Allmänt
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.78449905482
+
+Comparing:  Kultur  with  Blåljus
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.85175879397
+
+Comparing:  Kultur  with  Ekonomi
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.73932160804
+
+Comparing:  Kultur  with  Nöje
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.652392947103
+
+Comparing:  Kultur  with  Släkt o vänner
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.738767650834
+
+Comparing:  Kultur  with  Sport
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.779121578612
+
+Comparing:  Nöje  with  Allmänt
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.763074984247
+
+Comparing:  Nöje  with  Blåljus
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.809792843691
+
+Comparing:  Nöje  with  Ekonomi
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.71249215317
+
+Comparing:  Nöje  with  Kultur
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.650503778338
+
+Comparing:  Nöje  with  Släkt o vänner
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.700898587933
+
+Comparing:  Nöje  with  Sport
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.732017823043
+
+Comparing:  Släkt o vänner  with  Allmänt
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.708413615928
+
+Comparing:  Släkt o vänner  with  Blåljus
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.753678822777
+
+Comparing:  Släkt o vänner  with  Ekonomi
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.693538067818
+
+Comparing:  Släkt o vänner  with  Kultur
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.706675224647
+
+Comparing:  Släkt o vänner  with  Nöje
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.697047496791
+
+Comparing:  Släkt o vänner  with  Sport
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Sport  has (x= 1942 , y= 1942 ) st articles
+Gives an accuracy score of:  0.659312134977
+
+Comparing:  Sport  with  Allmänt
+Sport  has (x= 1942 , y= 1942 ) st articles
+Allmänt  has (x= 1982 , y= 1982 ) st articles
+Gives an accuracy score of:  0.762420382166
+
+Comparing:  Sport  with  Blåljus
+Sport  has (x= 1942 , y= 1942 ) st articles
+Blåljus  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.735406091371
+
+Comparing:  Sport  with  Ekonomi
+Sport  has (x= 1942 , y= 1942 ) st articles
+Ekonomi  has (x= 1996 , y= 1996 ) st articles
+Gives an accuracy score of:  0.718274111675
+
+Comparing:  Sport  with  Kultur
+Sport  has (x= 1942 , y= 1942 ) st articles
+Kultur  has (x= 1984 , y= 1984 ) st articles
+Gives an accuracy score of:  0.79694462126
+
+Comparing:  Sport  with  Nöje
+Sport  has (x= 1942 , y= 1942 ) st articles
+Nöje  has (x= 1985 , y= 1985 ) st articles
+Gives an accuracy score of:  0.723742838956
+
+Comparing:  Sport  with  Släkt o vänner
+Sport  has (x= 1942 , y= 1942 ) st articles
+Släkt o vänner  has (x= 1910 , y= 1910 ) st articles
+Gives an accuracy score of:  0.691109669046

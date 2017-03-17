@@ -32,9 +32,10 @@ RUN pip install --upgrade pip \
     && pip install -U protobuf==3.0.0b2
 # Install math dependencies in python pip
 RUN pip install --user asciitree \
-    && pip install --user numpy scipy \
+    && pip install --user numpy scipy sklearn \
     && pip install  --user python-env gensim \
 	&& pip install tensorflow
+RUN apt-get install python-psycopg2
 
 EXPOSE 3000
 EXPOSE 8080

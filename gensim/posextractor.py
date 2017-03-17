@@ -16,13 +16,13 @@ class Tagg(object):
 class POSTagger(object):
 	def __init__(self, str):
 		pass
-def POSParse(str):
+def POSParse(str, sep="\t"):
 	docs = []
 	taggs = []
 	
 	for i, posLine in enumerate(str.split("\n")):
-		posLine = posLine.split("\t", 7)
-		if len(posLine) < 7:
+		posLine = posLine.split(sep, 7)
+		if len(posLine) < 7: # End of document
 			if len(taggs) > 0:
 				docs.append(taggs)
 				taggs = []
@@ -70,7 +70,7 @@ def readPOSFromConll(fileName, max_pos=0):
 			tagger, docs = POSParse(posContent)
 			if len(docs) > 0:
 				poses.append(docs[0])
-				if max_pos > 0 and len(poses) >= max_pos:
+				if max_pos != 0 and len(poses) >= max_pos:
 					break
 			posContent = ''
 		else:

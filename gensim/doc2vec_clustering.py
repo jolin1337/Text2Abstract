@@ -1,8 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 
-import logging
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+# import logging
+# logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 import numpy
 import gensim
@@ -60,7 +60,7 @@ def evaluate(article_offset=3000):
     
     confusionMat = [[0 for c2 in categories] for c1 in categories]
     i = 0
-    for i, (article, manart) in enumerate(data):
+    for i, article in enumerate(data):
         if i < article_offset: # or i > 10000:
             continue
         # print article.content, article.category
@@ -84,8 +84,10 @@ def evaluate(article_offset=3000):
     for index, row in enumerate(confusionMat):
         print '\t'.join([str(num) for num in row]), '\t', categories[index]
     return True
-
-model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+try:
+    model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+except:
+    pass
 def doc2vecCategoriser(article, centroids, most_similar=False, least_similar=False):
     global model
     logger = logging.getLogger('doc2vec')
@@ -143,7 +145,7 @@ def doc2vecCluster(articleCount = 3000, nrofclusters = 24, clusterOp = None):
     c = 0
     logger.info("Start retrieve articles")
     # Retrieve the articles from the compressed file and in to memory (RAM)
-    for (article, manArticle) in data:
+    for article in data:
         # If the maximum of articles we want is exceeded
         if c >= articleCount:
             break

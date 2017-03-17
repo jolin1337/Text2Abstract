@@ -21,7 +21,7 @@ server.app.use(bp.urlencoded({ extended: true }), bp.json());
 server.app.get('/texts', function (request, response) {
 	// TODO: implement a slice array function to remove all items before the from parameter in request.query
 	var from = request.query.from || 0; 
-	var count = request.query.count || 0; 
+	var count = request.query.count || 0;
 	dm.retrieve({from: from, count: count}).then(function(items) {
 		items.sort((a, b) => { return a.textId < b.textId; });
 		response.end(JSON.stringify({ items: items }));

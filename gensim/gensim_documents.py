@@ -3,6 +3,8 @@
 
 import gensim
 from os import listdir
+import dotenv
+dotenv.load()
 
 
 
@@ -27,6 +29,33 @@ class LabeledLineSentence(object):
     def __iter__(self):
         for uid, line in enumerate(open(self.filename)):
             yield gensim.models.doc2vec.LabeledSentence(words=line.split(), tags=['SENT_%s' % uid])
+
+class VectorDictionary(object):
+    def __init__(self, model=gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))):
+        # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
+        if isinstance(model, str) or isinstance(model, unicode):
+            self.model = gensim.models.Doc2Vec.load(model)
+        else:
+            self.model = model
+        self.X = []
+        self.Y = []
+        self.labels = []
+    def addToDictionary(self, article, pred=None):
+        if isinstance(article, basestring):
+            article = Article(content=article, category=pred)
+        if not isinstance(article, Article) or article.content == 'None':
+            return
+        if not article.category in self.labels:
+            self.labels.append(article.category)
+            self.labels.sort()
+        artvec = self.model.infer_vector(doc_words=article.content.split())
+        artvec = gensim.matutils.unitvec(artvec)
+        # index = random.randrange(len(X)+1)
+        self.X.append(artvec)
+        self.Y.append(article.category)
+    def clearDictionary(self):
+        self.X = []
+        self.Y = []
 
 ## The wiki corpus class that will manage the article contents and manipulate it for doc2vec
 class WikiCorpusDocuments(object):
@@ -84,10 +113,11 @@ def manipulateArticle(doc):
 
 class MMDBDocuments(object):
     # Init function when the object is created
-    def __init__(self, corpusCSVFile, limit=-1, useLabeldTraining=False):
+    def __init__(self, corpusCSVFile, limit=-1, useLabeldTraining=False, articleMod=lambda article: article):
         self.corpus = corpusCSVFile
         self.limit = limit
         self.useLabeldTraining = useLabeldTraining
+        self.articleMod = articleMod
 
     def __iter__(self):
         pageCount = 0
@@ -103,19 +133,22 @@ class MMDBDocuments(object):
             articleContent = articleData[2][1:-1]
             articleCategory = articleData[3][1:-2]
             article = Article(id, articleTitle, articleContent, articleCategory)
+            if callable(self.articleMod):
+                article = self.articleMod(article)
 
             if self.useLabeldTraining:
-                yield gensim.models.doc2vec.LabeledSentence(words=manipulateArticle(articleContent).split(), tags=[articleCategory])
+                yield gensim.models.doc2vec.LabeledSentence(words=article.content.split(), tags=[article.category])
             else:
-                yield (article, manipulateArticle(articleContent))
+                yield article
 
 class MMDBDocumentLists(object):
-    def __init__(self, dir, limit=-1, useLabeldTraining=False):
+    def __init__(self, dir, limit=-1, useLabeldTraining=False, articleMod=lambda article: article):
         self.dir = dir
         self.limit = limit
         self.useLabeldTraining = useLabeldTraining
+        self.articleMod = articleMod
     def __iter__(self):
-        files = [iter(MMDBDocuments(self.dir + '/' + f, self.limit, self.useLabeldTraining)) for f in listdir(self.dir) if f.endswith('.csv')]
+        files = [iter(MMDBDocuments(self.dir + '/' + f, self.limit, self.useLabeldTraining, self.articleMod)) for f in listdir(self.dir) if f.endswith('.csv')]
         i = -1
         file_count = len(files)
         while file_count > 0:

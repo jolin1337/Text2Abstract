@@ -123,12 +123,13 @@ void Dictionary::computeNgrams(const std::string& word,
                                std::vector<int32_t>& ngrams) const {
   for (size_t i = 0; i < word.size(); i++) {
     std::string ngram;
-    if ((word[i] & 0xC0) == 0x80) continue;
+    if ((word[i] & 0xC0) == 0x80) continue; // Ignores all characters except a-zA-Z and some more common ones
     for (size_t j = i, n = 1; j < word.size() && n <= args_->maxn; n++) {
       ngram.push_back(word[j++]);
       while (j < word.size() && (word[j] & 0xC0) == 0x80) {
         ngram.push_back(word[j++]);
       }
+        std::cout << ngram << "\n";
       if (n >= args_->minn && !(n == 1 && (i == 0 || j == word.size()))) {
         int32_t h = hash(ngram) % args_->bucket;
         ngrams.push_back(nwords_ + h);
@@ -141,6 +142,7 @@ void Dictionary::initNgrams() {
   for (size_t i = 0; i < size_; i++) {
     std::string word = BOW + words_[i].word + EOW;
     words_[i].subwords.push_back(i);
+        // std::cout << "Subword: " <<word <<", "<< i << "\n";
     computeNgrams(word, words_[i].subwords);
   }
 }

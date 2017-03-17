@@ -23,7 +23,7 @@ Args::Args() {
   epoch = 5;
   minCount = 5;
   neg = 5;
-  wordNgrams = 1;
+  wordNgrams = 10;
   loss = loss_name::ns;
   model = model_name::sg;
   bucket = 2000000;

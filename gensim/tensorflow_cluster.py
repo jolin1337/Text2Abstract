@@ -1,26 +1,72 @@
 import tensorflow as tf
-from random import choice, shuffle
+import random
 from numpy import array
+import numpy as np
 import logging
  
-def TFKMeansCluster(vectors, noofclusters, noofiterations = 100):
+def KMeansCluster(vectors, noofclusters, noofiterations=100, useCosineDistance=True):
+    """
+    K-Means Clustering using python implementation.
+    'vectors' should be a n*k 2-D NumPy array, where n is the number
+    of vectors of dimensionality k.
+    'noofclusters' should be an integer.
+    """
     logger = logging.getLogger("k-means-logger")
+    
+    def calculateAssignments(vectors, centroids, useCosineDistance):
+        if useCosineDistance:
+            return np.argmax([[np.dot(x, c)
+                                       for c in centroids]
+                            for x in vectors], axis=1)
+            # return np.argmax([[np.dot(np.linalg.norm(x), np.linalg.norm(c)) 
+            #                            for c in centroids]
+            #                 for x in vectors], axis=1)
+        else:
+            return np.argmin([[np.sum(np.power(x - c, 2)) 
+                                       for c in centroids]
+                            for x in vectors], axis=1)
+
+    noofclusters = int(noofclusters)
+    assert noofclusters < len(vectors)
+    
+    random.seed(42)
+    #Will help select random centroids from among the available vectors
+    vector_indices = list(range(len(vectors)))
+    random.shuffle(vector_indices)
+
+    # Make sure we use numpy array
+    vectors = np.array(vectors)
+    
+    ##First lets ensure we have a Variable vector for each centroid,
+    ##initialized to one of the vectors from the available data points
+    centroids = [vectors[vector_indices[i]]
+                 for i in range(noofclusters)]
+    for iteration_n in range(noofiterations):
+        logger.info("Iteration: %s" % iteration_n)
+        assignments = calculateAssignments(vectors, centroids, useCosineDistance)
+        centroids = [np.mean(vectors[np.equal(np.array(assignments), indexC)], axis=0) for indexC in range(len(centroids))]
+        # print centroids
+    return centroids, calculateAssignments(vectors, centroids, useCosineDistance)
+
+def TFKMeansCluster(vectors, noofclusters, noofiterations = 100, useCosineDistance=True):
     """
     K-Means Clustering using TensorFlow.
     'vectors' should be a n*k 2-D NumPy array, where n is the number
     of vectors of dimensionality k.
     'noofclusters' should be an integer.
     """
+    logger = logging.getLogger("k-means-logger")
  
     noofclusters = int(noofclusters)
     assert noofclusters < len(vectors)
  
     #Find out the dimensionality
     dim = len(vectors[0])
- 
+    
+    random.seed(42)
     #Will help select random centroids from among the available vectors
     vector_indices = list(range(len(vectors)))
-    shuffle(vector_indices)
+    random.shuffle(vector_indices)
  
     #GRAPH OF COMPUTATION
     #We initialize a new graph and set it as the default during each run
@@ -71,11 +117,12 @@ def TFKMeansCluster(vectors, noofclusters, noofiterations = 100):
         #Placeholders for input
         v1 = tf.placeholder("float", [dim])
         v2 = tf.placeholder("float", [dim])
-        euclid_dist = tf.sqrt(tf.reduce_sum(tf.pow(tf.sub(
-            v1, v2), 2)))
-        cosine_dist = tf.reduce_sum(tf.mul(
-            v1, v2))
-        cosine_dist  = tf.reduce_sum(tf.mul(v1, v2))
+        euclid_dist = tf.sqrt(tf.reduce_sum(tf.pow(tf.sub(v1, v2), 2)))
+        euclid_dist = tf.sqrt(tf.reduce_sum(tf.pow(tf.sub(1.0, tf.mul(v1, v2)), 2)))
+        cosine_dist = tf.mul(tf.reduce_sum(tf.mul(tf.mul(v1, -1.0), v2)), -1.0)
+        dist = euclid_dist
+        if useCosineDistance:
+            dist = cosine_dist
  
         ##This node will figure out which cluster to assign a vector to,
         ##based on Euclidean distances of the vector from the centroids.
@@ -111,7 +158,7 @@ def TFKMeansCluster(vectors, noofclusters, noofiterations = 100):
                 #centroid. Remember that this list cannot be named
                 #'centroid_distances', since that is the input to the
                 #cluster assignment node.
-                distances = [sess.run(euclid_dist, feed_dict={
+                distances = [sess.run(dist, feed_dict={
                     v1: vect, v2: sess.run(centroid)})
                              for centroid in centroids]
                 #Now use the cluster assignment node, with the distances
