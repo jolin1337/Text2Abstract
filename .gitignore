@@ -1,6 +1,7 @@
 
 # Remove large file directories
-MM/*
+MM
+MM/loadPostgres.py
 word2vec/trained-sources/*
 word2vec/wiki_sv/*
 gensim/wiki_sv/*
