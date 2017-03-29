@@ -18,3 +18,4 @@ node_modules
 *.vec2
 *.vec1
 *.pyc
+*.DS_Store
