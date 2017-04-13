@@ -1,3 +1,6 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+
 import re, ast
 
 
@@ -46,9 +49,9 @@ def rawJsonFilter(headline, columns):
 		return {
 			'uuid': columns[headline['uuid']],
 			'body': rawJson['body'],
-			'categories': str(rawJson['categories'])
+			'title': rawJson['headline'],
+			'category': str(rawJson['categories'])
 		}
-
 	else:
 		return False
 
@@ -57,6 +60,7 @@ def printAnomalies(inputFile):
 	headline = False
 	smallestDocuments = [None] * 1
 	largestDocuments = [None] * 1
+	categories = {}
 
 	for line in csv:
 		columns = line[1:-2].split('"§§"')
@@ -65,6 +69,14 @@ def printAnomalies(inputFile):
 			continue
 
 		currentDocument = columns[headline['body']].split(" ")
+		currentCategories = ast.literal_eval(unicode(columns[headline['categories']]))
+		#for categorySet in currentCategories:
+		categorySet = currentCategories[0]
+		for category in categorySet:
+			if category['name'] in categories:
+				categories[category['name']] += 1
+			else:
+				categories[category['name']] = 1
 		for i, smallestDocument in enumerate(smallestDocuments):
 			if not smallestDocument or len(smallestDocument[headline['body']]) > len(currentDocument):
 				smallestDocuments[i] = columns
@@ -85,10 +97,11 @@ def printAnomalies(inputFile):
 			print "---------- Smallest document ", smallestDocument[headline['uuid']], " ----------"
 			print smallestDocument[headline['categories']]
 			print ' '.join(smallestDocument[headline['body']])
+		print categories
 
 if __name__ == '__main__':
 	import dotenv
 	dotenv.load()
 
-	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140-filter-uuid', rawJsonFilter)
-	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140-filter-uuid')
+	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237-filter-uuid', rawJsonFilter)
+	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237-filter-uuid')

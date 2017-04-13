@@ -58,6 +58,9 @@ def train(x_train, labels, clf = None):
 		# clf = KMeans(n_clusters=nrofclusters, random_state=42)
 	return clf.fit(x_train, labels)
 
+def score(model, x, y):
+	return model.score(x, y)
+
 if __name__ == '__main__':
 	# Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
 	model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))

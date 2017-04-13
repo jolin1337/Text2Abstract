@@ -6,6 +6,7 @@ import doc2vec_clustering as classifier
 import gensim_documents
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn import metrics
 import gensim
 
 import random
@@ -15,6 +16,12 @@ dotenv.load()
 
 def train(x_train, y_train, clf = RandomForestClassifier(criterion="entropy",random_state=42)):
 	return clf.fit(x_train, y_train)
+
+# def score(model, x, y):
+# 	return model.score(x, y)
+def score(model, x, y):
+	pred = model.predict(x)
+	return metrics.f1_score(y, pred, average='micro')
 
 if __name__ == '__main__':
 	data = gensim_documents.MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category/', limit=77851)

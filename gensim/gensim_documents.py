@@ -39,23 +39,34 @@ class VectorDictionary(object):
             self.model = model
         self.X = []
         self.Y = []
+        self.rawData = []
         self.labels = []
+    def setModel(self, model):
+        self.model = model
     def addToDictionary(self, article, pred=None):
         if isinstance(article, basestring):
             article = Article(content=article, category=pred)
         if not isinstance(article, Article) or article.content == 'None':
-            return
+            return False
         if not article.category in self.labels:
             self.labels.append(article.category)
             self.labels.sort()
         artvec = self.model.infer_vector(doc_words=article.content.split())
         artvec = gensim.matutils.unitvec(artvec)
         # index = random.randrange(len(X)+1)
+        self.rawData.append(article)
         self.X.append(artvec)
         self.Y.append(article.category)
+        return True
     def clearDictionary(self):
         self.X = []
         self.Y = []
+    def assignCopy(self, other):
+        self.X = other.X
+        self.Y = other.Y
+        self.rawData = other.rawData
+        self.labels = other.labels
+        self.model = other.model
 
 ## The wiki corpus class that will manage the article contents and manipulate it for doc2vec
 class WikiCorpusDocuments(object):
@@ -113,26 +124,38 @@ def manipulateArticle(doc):
 
 class MMDBDocuments(object):
     # Init function when the object is created
-    def __init__(self, corpusCSVFile, limit=-1, useLabeldTraining=False, articleMod=lambda article: article):
+    def __init__(self, corpusCSVFile, limit=-1, useLabeldTraining=False, articleMod=lambda article: article, useHeading=False):
         self.corpus = corpusCSVFile
         self.limit = limit
         self.useLabeldTraining = useLabeldTraining
         self.articleMod = articleMod
+        self.useHeading = useHeading
 
     def __iter__(self):
         pageCount = 0
+        heading = {
+            "uuid": 0,
+            "title": 1,
+            "body": 2,
+            "category": 3
+        }
         for (id, lineData) in enumerate(open(self.corpus)):
-            # If we read enogh articles: abort
+            # If we read enough articles: abort
             if self.limit > -1 and self.limit <= pageCount:
                 break
-
             pageCount += 1
 
-            articleData = lineData.split('§§', 4)
-            articleTitle = articleData[1][1:-1]
-            articleContent = articleData[2][1:-1]
-            articleCategory = articleData[3][1:-2]
-            article = Article(id, articleTitle, articleContent, articleCategory)
+            articleData = lineData[1:-2].split('"§§"')
+            if pageCount == 1 and self.useHeading:
+                heading = {c: i for i, c in enumerate(articleData)}
+                continue
+            if len(articleData) != len(heading.values()):
+                continue
+            # Keep these lines for easier debuging of what column that is missing in csv file
+            articleData[heading['title']]
+            articleData[heading['body']]
+            articleData[heading['category']]
+            article = Article(id, articleData[heading['title']], articleData[heading['body']], articleData[heading['category']])
             if callable(self.articleMod):
                 article = self.articleMod(article)
 
@@ -142,13 +165,14 @@ class MMDBDocuments(object):
                 yield article
 
 class MMDBDocumentLists(object):
-    def __init__(self, dir, limit=-1, useLabeldTraining=False, articleMod=lambda article: article):
+    def __init__(self, dir, limit=-1, useLabeldTraining=False, articleMod=lambda article: article, useHeading=False):
         self.dir = dir
         self.limit = limit
         self.useLabeldTraining = useLabeldTraining
         self.articleMod = articleMod
+        self.useHeading=useHeading
     def __iter__(self):
-        files = [iter(MMDBDocuments(self.dir + '/' + f, self.limit, self.useLabeldTraining, self.articleMod)) for f in listdir(self.dir) if f.endswith('.csv')]
+        files = [iter(MMDBDocuments(self.dir + '/' + f, self.limit, self.useLabeldTraining, self.articleMod, useHeading=self.useHeading)) for f in listdir(self.dir) if f.endswith('.csv')]
         i = -1
         file_count = len(files)
         while file_count > 0:

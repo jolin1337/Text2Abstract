@@ -4,7 +4,7 @@
 import doc2vec_clustering as classifier
 
 import gensim_documents
-from sklearn import tree
+from sklearn import tree, metrics
 from sklearn.model_selection import train_test_split
 import numpy as np
 import gensim
@@ -20,6 +20,10 @@ def getCategoryFromFile(fileName):
 
 def train(x_train, y_train, clf = tree.DecisionTreeClassifier(criterion="entropy")):
 	return clf.fit(x_train, y_train)
+
+def score(model, x, y):
+	pred = model.predict(x)
+	return metrics.f1_score(y, pred, average='micro')
 
 def pairTraining(samples=200):
 	# data = gensim_documents.MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category/')

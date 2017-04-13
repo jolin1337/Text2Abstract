@@ -35,7 +35,7 @@ RUN pip install --user asciitree \
     && pip install --user numpy scipy sklearn \
     && pip install  --user python-env gensim \
 	&& pip install tensorflow
-RUN apt-get install python-psycopg2
+RUN apt-get install python-psycopg2 psycopg2
 
 EXPOSE 3000
 EXPOSE 8080

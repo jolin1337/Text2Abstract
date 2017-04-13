@@ -5,6 +5,7 @@ import doc2vec_clustering as classifier
 
 import gensim_documents
 from sklearn.neural_network import MLPClassifier
+from sklearn import metrics
 from sklearn.model_selection import train_test_split
 import gensim
 
@@ -15,6 +16,12 @@ dotenv.load()
 
 def train(x_train, y_train, clf = MLPClassifier(alpha=0.003, solver='lbfgs', activation='logistic', max_iter=1000)):
 	return clf.fit(x_train, y_train)
+
+# def score(model, x, y):
+# 	return model.score(x, y)
+def score(model, x, y):
+	pred = model.predict(x)
+	return metrics.f1_score(y, pred, average='micro')
 
 if __name__ == '__main__':
 	modelPaths = ['original', 'special', 'summary', 'taggs']
