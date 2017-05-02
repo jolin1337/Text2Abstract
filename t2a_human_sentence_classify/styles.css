@@ -1,0 +1,109 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	background: #fffbf2;
+	font-family: arial;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+body {
+	overflow-x: auto;
+	overflow-y: scroll;
+}
+
+#main {
+	position: absolute;
+	top: 500px;
+	left: 20%;
+	right: 20%;
+	text-align: center;
+	min-width: 800px;
+}
+#polarity {
+	margin-top: -80px;
+	/*font-size: 50pt;*/
+	text-shadow: 0 0 23px rgba(0,0,0,0.99);
+}
+#background {
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+}
+#background img{
+	position: absolute;
+	
+
+	width: 140%;
+    min-height: 600px;
+    min-width: 800px;
+	opacity: 0.07;
+
+	left: -20%;
+	top: -20%;
+}
+
+.sentence {
+	width: 100%;
+	padding: 14px 14px 20px 14px;
+	margin: 0px;
+	border-radius: 10px;
+	border: 1px solid #888;
+	box-shadow: 0 0 13px rgba(0,0,0,0.3);
+	font-size: 15pt;
+	box-sizing: border-box;
+	background: white;
+}
+button {
+	display: inline-block;
+	width: 100%;
+	position: relative;
+	top: -10px;
+	padding: 5px 10px;
+	border-radius: 0 0 10px 10px;
+	border: 1px solid #888;
+	border-width: 0 1px 1px 1px;
+
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#fceabb+0,fccd4d+50,f8b500+51,fbdf93+100;Orange+3D+%235 */
+	background: rgb(252,234,187); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(252,234,187,1) 0%, rgba(252,205,77,1) 50%, rgba(248,181,0,1) 51%, rgba(251,223,147,1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, rgba(252,234,187,1) 0%,rgba(252,205,77,1) 50%,rgba(248,181,0,1) 51%,rgba(251,223,147,1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, rgba(252,234,187,1) 0%,rgba(252,205,77,1) 50%,rgba(248,181,0,1) 51%,rgba(251,223,147,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fceabb', endColorstr='#fbdf93',GradientType=0 ); /* IE6-9 */
+	background-color: #aaa;
+	
+	color: #222;
+	font-weight: bold;
+	font-size: 13pt;
+}
+button:hover {
+	background: #fa1;
+}
+button:active {
+	background: #da1;
+}
+
+#about {
+	text-align: left;
+	background: rgba(255,255,255,0.8);
+	padding: 20px;
+	position: absolute;
+	top: -500px;
+	height: 250px;
+	transition: all 0.2s ease;
+}
+#applySentenceForm {
+	padding-bottom: 10px;
+}
+
+@media (max-width: 780px) {
+	#main {
+		left: 10px;
+		right: 10px;
+	}
+}

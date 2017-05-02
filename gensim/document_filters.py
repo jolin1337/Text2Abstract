@@ -45,11 +45,12 @@ def rawJsonFilter(headline, columns):
 	if 'uuid' in columns or 'data' in columns:
 		return False
 	rawJson = ast.literal_eval(unicode(columns[headline['data']]))
-	if rawJson['body'] and rawJson['body'].find('uuid') < 0 and len(rawJson['categories']) > 0 and None != shouldContainTextRegexp.search(rawJson['body']):
+	if rawJson['lead'] and rawJson['body'] and rawJson['body'].find('uuid') < 0 and len(rawJson['categories']) > 0 and None != shouldContainTextRegexp.search(rawJson['body']):
 		return {
 			'uuid': columns[headline['uuid']],
 			'body': rawJson['body'],
 			'title': rawJson['headline'],
+			'lead': unicode(rawJson['lead']),
 			'category': str(rawJson['categories'])
 		}
 	else:
@@ -69,7 +70,7 @@ def printAnomalies(inputFile):
 			continue
 
 		currentDocument = columns[headline['body']].split(" ")
-		currentCategories = ast.literal_eval(unicode(columns[headline['categories']]))
+		currentCategories = ast.literal_eval(unicode(columns[headline['category']]))
 		#for categorySet in currentCategories:
 		categorySet = currentCategories[0]
 		for category in categorySet:
@@ -91,11 +92,11 @@ def printAnomalies(inputFile):
 	if headline:
 		for largestDocument in largestDocuments:
 			print "---------- Largest document ", smallestDocument[headline['uuid']], "  ----------"
-			print largestDocument[headline['categories']]
+			print largestDocument[headline['category']]
 			print ' '.join(largestDocument[headline['body']])
 		for smallestDocument in smallestDocuments:
 			print "---------- Smallest document ", smallestDocument[headline['uuid']], " ----------"
-			print smallestDocument[headline['categories']]
+			print smallestDocument[headline['category']]
 			print ' '.join(smallestDocument[headline['body']])
 		print categories
 
@@ -103,5 +104,5 @@ if __name__ == '__main__':
 	import dotenv
 	dotenv.load()
 
-	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237-filter-uuid', rawJsonFilter)
-	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237-filter-uuid')
+	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid', rawJsonFilter)
+	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid')

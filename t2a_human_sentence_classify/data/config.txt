@@ -1,0 +1,3 @@
+totalSentences=0
+fileIterations=0
+currentSentence=0

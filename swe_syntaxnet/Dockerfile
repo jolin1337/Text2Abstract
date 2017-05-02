@@ -1,6 +1,6 @@
 # Text2Abstract
 #
-# VERSION               0.0.2
+# VERSION               1.0.2
 
 FROM java:8
 MAINTAINER Johannes Lindén <johannes@godesity.se>
@@ -14,7 +14,8 @@ WORKDIR $TEXT2ABSTRACT_DIR
 # Update and install dependencies
 RUN apt-get update \
     && apt-get install git zlib1g-dev file swig python2.7 python-dev python-pip -y \
-    && apt-get install nodejs-legacy npm -y
+    && apt-get install nodejs-legacy npm -y \
+    && apt-get install python-psycopg2 -y
 
 #install node
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.11.1/install.sh | bash \
@@ -35,7 +36,7 @@ RUN pip install --user asciitree \
     && pip install --user numpy scipy sklearn \
     && pip install  --user python-env gensim \
 	&& pip install tensorflow
-RUN apt-get install python-psycopg2 psycopg2
+RUN pip install psycopg2 # Postgres database interface for python
 
 EXPOSE 3000
 EXPOSE 8080

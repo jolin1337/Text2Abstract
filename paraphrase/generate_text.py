@@ -5,9 +5,10 @@
 import sys
 sys.path.append('../gensim')
 
-import sklearn
 import numpy as np
-import posextractor
+import dotenv
+dotenv.load()
+
 # A utility function to find the vertex with minimum dist value, from
 # the set of vertices still in queue
 def minDistance(dist,queue):
@@ -78,6 +79,26 @@ def getAdjacencyMatrix(wordEdges, wordCount):
 					if index < l-1: edgeMatrix[i][sentence[index+1]] += 1
 					if index > 0: edgeMatrix[sentence[index-1]][i] += 1
 	return edgeMatrix
+
+## Try to see similarities between title and text for text generation
+from PyTeaser.pyteaser import Summarize
+for i, lin in enumerate(open(dotenv.get('ARTICLE_PATH', './') + 'tmp-articles-dump_april_16_1205-filter-uuid')):
+	if i == 0:
+		print lin
+	if i >= 10:
+		attrs = lin[1:-2].split('"§§"')
+		text = attrs[0]
+		print "Summary: ", ' '.join(Summarize('', text, 3))
+		print "Lead: ", attrs[-2]
+		print "Title", attrs[-1],
+		break
+exit()
+
+
+## An poor atempt for collecting the relations between existing words and their classes and generate a sentence out of it
+import sklearn
+import posextractor
+
 pos = posextractor.readPOSFromConll('../MM/pos_by_category/articles_MM_Allmänt.conll', 100)
 dictionary    = {}
 invDictionary    = {}
