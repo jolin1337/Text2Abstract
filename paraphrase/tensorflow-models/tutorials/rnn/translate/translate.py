@@ -57,8 +57,8 @@ tf.app.flags.DEFINE_integer("size", 256, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("num_layers", 2, "Number of layers in the model.")
 tf.app.flags.DEFINE_integer("from_vocab_size", 40000, "English vocabulary size.")
 tf.app.flags.DEFINE_integer("to_vocab_size", 40000, "French vocabulary size.")
-tf.app.flags.DEFINE_string("data_dir", "../../../../trained-sources/translate_model_5-summary_to_lead/", "Data directory")
-tf.app.flags.DEFINE_string("train_dir", "../../../../trained-sources/translate_model_5-summary_to_lead/", "Training directory.")
+tf.app.flags.DEFINE_string("data_dir", "../../../../trained-sources/translate_model_2-lead_to_title/", "Data directory")
+tf.app.flags.DEFINE_string("train_dir", "../../../../trained-sources/translate_model_2-lead_to_title/", "Training directory.")
 tf.app.flags.DEFINE_string("from_train_data", None, "Training data.")
 tf.app.flags.DEFINE_string("to_train_data", None, "Training data.")
 tf.app.flags.DEFINE_string("from_dev_data", None, "Training data.")
@@ -78,8 +78,11 @@ FLAGS = tf.app.flags.FLAGS
 
 # We use a number of buckets and pad to the closest one for efficiency.
 # See seq2seq_model.Seq2SeqModel for details of how they work.
-_buckets = [(100, 80), (120, 100), (220, 170)]
+# _buckets = [(5, 10), (10, 15), (20, 25), (40, 50)]
+_buckets = [(10, 5), (15, 10), (25, 20), (50, 20), (220, 170)]
 
+# Pair fo buckets the first element in each pair is the max encoded sentence length (i.e. the sentence is padded to the lower maxima)
+# The second elemen in each pair is the max decoded sentence length (i.e. the sentence is padded to the lower maxima)
 
 def read_data(source_path, target_path, max_size=None):
   """Read data from source and target files and put into buckets.
@@ -259,8 +262,8 @@ def decode():
     _, rev_fr_vocab = data_utils.initialize_vocabulary(fr_vocab_path)
 
     # Decode from standard input.
-    sys.stdout.write("> ")
-    sys.stdout.flush()
+    # sys.stdout.write("> ")
+    # sys.stdout.flush()
     sentence = sys.stdin.readline()
     while sentence:
       # Get token-ids for the input sentence.
@@ -286,10 +289,10 @@ def decode():
       if data_utils.EOS_ID in outputs:
         outputs = outputs[:outputs.index(data_utils.EOS_ID)]
       # Print out French sentence corresponding to outputs.
-      print("\n")
-      print(" ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs]))
-      print("> ", end="")
-      sys.stdout.flush()
+      text = " ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs])
+      print(text)
+      # print("> ", end="")
+      # sys.stdout.flush()
       sentence = sys.stdin.readline()
 
 

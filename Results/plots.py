@@ -3,18 +3,23 @@ import plotly.graph_objs as go
 import pandas as pd
 import ast
 
-matrixDocuments = ast.literal_eval(open("classify_result_2.1_vary_documents.pjson").read())
+matrixDocuments = ast.literal_eval(open("classify_result_2.2_vary_documents.pjson").read())
 documentLengthData = ast.literal_eval(open("classify_result_2.2_separate_document_lengths.pjson").read())
 matrixDocuments.sort(key=lambda m: m['score'])
 algorithms = ['neuralnetwork', 'randomforest', 'decissiontree']
 for algorithm in algorithms:
     py.plot({
-        'data': [
+        'data': ([
             go.Scatter(x=[measure['category_count']],
-                    y=[measure['document_count'] / measure['category_count']],
-                    marker=go.Marker(color='hsl('+str(measure['score']*360-90)+',50%'+',50%)', size=measure['score']*100, sizemode='area', sizeref=131868),
-                    mode='markers', name=measure['score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
-        ],
+                    y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
+                    marker=go.Marker(color=[measure['score']], size=measure['score']*200, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    mode='markers', showlegend=False, name=measure['score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
+        ] + [
+            go.Scatter(x=[measure['category_count']],
+                    y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
+                    marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*200, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
+        ]),
         'layout': go.Layout(xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
     }, show_link=False, filename='plot-matrix-' + algorithm + '.html')
 
@@ -26,14 +31,14 @@ py.plot({
         ])
         for algorithm in algorithms
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
-}, show_link=False, filename='plot-variance-of-input-' + algorithm + '.html')
+    'layout': go.Layout(xaxis=go.XAxis(title='Algorithm'), yaxis=go.YAxis(title='Score'))
+}, show_link=False, filename='plot-variance-of-input.html')
 
 py.plot({
     'data': [
         go.Bar(
             name=algorithm,
-            x=[str(measure['min_document_length']) + ' - ' + str(measure['max_document_length']) + ' words'
+            x=[str(measure['min_document_length']) + ' - ' + str(measure['max_document_length']-1) + ' words'
                 for measure in documentLengthData if algorithm in measure['classifier']
             ],
             y=[measure['score'] 
@@ -42,5 +47,5 @@ py.plot({
         )
         for algorithm in algorithms
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Algorithms'), yaxis=go.YAxis(title='Accuracy'))
+    'layout': go.Layout(xaxis=go.XAxis(title='Algorithms'), yaxis=go.YAxis(title='Score'))
 }, show_link=False, filename='plot-document-length.html')

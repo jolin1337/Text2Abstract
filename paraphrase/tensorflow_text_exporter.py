@@ -7,7 +7,7 @@ dotenv.load()
 
 from PyTeaser.pyteaser import Summarize
 import re
-sentencePattern = re.compile(r'[\\.\\!\\?;]')
+sentencePattern = re.compile(r'[\\.\\!\\?;\n]')
 wordPattern = re.compile(r'[^\wåäöÅÄÖ]*')
 
 def makeParagraph(text):
@@ -17,10 +17,10 @@ def makeSentence(text):
 
 def iter_mm_documents():
   # dataSource = dotenv.get('ARTICLE_PATH', '.') + '/articles.csv'
-  dataSource = dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid'
+  dataSource = dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_14_1723-filter-uuid'
   headings = False
   for i, line in enumerate(open(dataSource, 'r')):
-    # if i >= 10000:
+    # if i >= 70000:
     #   break
     attrs = line[1:-2].split('"§§"')
     if headings == False:
@@ -62,13 +62,17 @@ def translate_convert():
             title = attrs[headings["title"]]
             lead = attrs[headings["lead"]]
             body = attrs[headings["body"]]
-            summary = ' '.join(Summarize(attrs[headings["title"]], attrs[headings["body"]], 3))
+            summary = ' '.join(Summarize(attrs[headings["title"]], attrs[headings["body"]], 1))
             # article = attrs[headings["title"]]
             # abstract = attrs[headings["body"]]
-            bodyFile.write(body + '\n')
-            summaryFile.write(summary + '\n')
-            leadFile.write(lead + '\n')
-            titleFile.write(title + '\n')
+
+            (title, lead, body, summary) = ('. '.join(re.split(u'\n|\n|\r', text, flags=re.UNICODE))
+                  for text in [title, lead, body, summary])
+
+            bodyFile.write(body + '\n\n')
+            summaryFile.write(summary + '\n\n')
+            leadFile.write(lead + '\n\n')
+            titleFile.write(title + '\n\n')
 
 if __name__ == '__main__':
   translate_convert()

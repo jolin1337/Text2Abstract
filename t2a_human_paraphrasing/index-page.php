@@ -13,11 +13,11 @@
 	<div id="about">
 		<p>Mitt namn är Johannes Lindén och jag är en master student på Mittuniversitetet i årskurs 5.
 		</p>
-		<p>Jag undersöker hur LSTM presterar i uppgiften att skriva om små texter med andra ord men samma betydelse. För att se hur bra programmet fungerar, så vill jag gärna jämföra med hur bra ni (en oberoende part) tycker att denna algoritm fungerar. Var vänlig och betygsätt meningarna genom att välja på skalan och sen trycka på knappen 'Betygsätt'.
+		<p>Jag undersöker hur Long Short Term Memory (LSTM) algorithmen presterar i uppgiften att skriva om små texter med andra ord men samma betydelse. För att se hur bra programmet fungerar, så vill jag gärna jämföra med hur bra ni (en oberoende part) tycker att denna algoritm fungerar. Var vänlig och betygsätt meningarna genom att välja på skalan och sen trycka på knappen 'Betygsätt'.
 		</p>
-		<p>OBS! Det går tyvärr inte att ångra sig i efterhand. Jag uppskattar att ni betygsätter så många meningar som möjligt. Totalt bör ungefär 300 meningar klassificeras tre gånger. Meningarna är hämtade från lokaltidningar i sverige.
+		<p>OBS! Det går tyvärr inte att ångra sig i efterhand. Jag uppskattar att ni betygsätter så många meningar som möjligt. Meningarna är hämtade från lokaltidningar i sverige.
 		</p>
-		<p>Ni får gärna kontakta mig angående studien genom att skriva till johannes@godesity.se.
+		<p>Ni får gärna kontakta mig angående studien genom att skriva till <a href="mailto:joli1230@student.miun.se">joli1230@student.miun.se</a>.
 		</p>
 		<p>Tack så mycket!</p>
 	</div>

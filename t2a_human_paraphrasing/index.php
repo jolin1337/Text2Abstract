@@ -2,7 +2,8 @@
 define('EOL', "\n");
 
 class SentenceData {
-	private $sentenceFile = "data/lead-language.sv";
+	private $sentenceSourceFile = "data/sentence-orig.txt";
+	private $sentenceTargetFile = "data/sentence-pred.txt";
 	private $configFile = "data/config.txt";
 	private $classifyFile = "data/classifies.txt";
 	
@@ -44,8 +45,8 @@ class SentenceData {
 	}
    
 	public function getNewSentence($goToNextSentence=true) {
-		$encodedSentences = explode(EOL, file_get_contents($this->sentenceFile));
-		$decodedSentences = explode(EOL, file_get_contents($this->sentenceFile . '.decoded'));
+		$encodedSentences = explode(EOL, file_get_contents($this->sentenceSourceFile));
+		$decodedSentences = explode(EOL, file_get_contents($this->sentenceTargetFile));
 		if ($goToNextSentence) {
 			$this->currentSentence = ($this->getCurrentSentence() + 1) % $this->getTotalNumberOfSentences();
 			if ($this->currentSentence == 0) $this->fileIterations++;
@@ -64,7 +65,7 @@ class SentenceData {
 	}
 	
 	public function updateSentenceCount() {
-		$sentences = explode(EOL, file_get_contents($this->sentenceFile));
+		$sentences = explode(EOL, file_get_contents($this->sentenceSourceFile));
 		$this->totalSentences = count($sentences);
 		return $this->totalSentences;
 	}
