@@ -54,13 +54,20 @@ class SentenceData {
 		foreach ($encodedSentences as $key => $value) {
 			if ($key >= $this->getCurrentSentence()+1) break;
 		}
+		$sent1 = $encodedSentences[$key];
+        $sent2 = str_replace('_UNK', '(okänt ord)', $decodedSentences[$key]);
+        if (rand(1, 10) > 5) {
+            $tmp = $sent1;
+            $sent1 = $sent2;
+            $sent2 = $tmp;
+        }
 		return (object)array(
 			'totalSentences' => $this->getTotalNumberOfSentences(),
 			'currentSentence' => $this->getCurrentSentence(),
 			'fileIterations' => $this->getFileIterations(),
-			'name_default' 	=> $encodedSentences[$key],
-			'name_predict' 	=> $decodedSentences[$key],
-			'id'	=> $this->currentSentence
+			'name_default' 	=> $sent1,
+			'name_predict' 	=> $sent2,
+			'id'	=> $this->getCurrentSentence()
 		);
 	}
 	
@@ -80,7 +87,7 @@ class SentenceData {
 					$headings[$attr] = $index;
 				}
 			}
-			if ($key === $id || $value[$headings['uuid']] === $id) {
+			if ($value[$headings['uuid']] === $id) {
 				$value[$headings['class']] = ($value[$headings['class']] ? $value[$headings['class']] . ';' : '') . $classify;
 				$sentences[$key] = '"' . implode('"§§"', $value) . '"';
 				$found = True;
@@ -99,6 +106,14 @@ class SentenceData {
 		return $this->totalSentences;
 	}
 	public function getCurrentSentence() {
+	    $currentSentence = 0;
+		$sentences = explode(EOL, file_get_contents($this->classifyFile));
+	    $fileIt = $this->getFileIterations();
+	    foreach ($sentences as $key => $value) {
+	        if ($key === 0) continue;
+	        if (substr_count(';', $value) < $fileIt) break;
+	        $currentSentence += 1;
+	    }
 		return $this->currentSentence;
 	}
 	public function getFileIterations() {
@@ -120,7 +135,10 @@ if(isset($_POST['sentence_id'], $_POST['sentence_class'])) {
 }
 else {
 	$sentence = $sentenceData->getNewSentence(false);
-	include ('index-page.php');
+	if (isset($_GET) && isset($_GET['dev']))
+	    include ('index-page-dev.php');
+	else
+	    include ('index-page.php');
 }
 $sentenceData->close();
 

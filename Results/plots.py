@@ -1,6 +1,6 @@
 import plotly.offline as py
 import plotly.graph_objs as go
-import pandas as pd
+#import pandas as pd
 import ast
 
 matrixDocuments = ast.literal_eval(open("classify_result_2.2_vary_documents.pjson").read())
@@ -21,7 +21,7 @@ for algorithm in algorithms:
                     mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ]),
         'layout': go.Layout(xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
-    }, show_link=False, filename='plot-matrix-' + algorithm + '.html')
+    }, show_link=False, filename='plot-matrix-' + algorithm + '.html', auto_open=False)
 
 py.plot({
     'data': [
@@ -32,7 +32,7 @@ py.plot({
         for algorithm in algorithms
     ],
     'layout': go.Layout(xaxis=go.XAxis(title='Algorithm'), yaxis=go.YAxis(title='Score'))
-}, show_link=False, filename='plot-variance-of-input.html')
+}, show_link=False, filename='plot-variance-of-input.html', auto_open=False)
 
 py.plot({
     'data': [
@@ -48,4 +48,20 @@ py.plot({
         for algorithm in algorithms
     ],
     'layout': go.Layout(xaxis=go.XAxis(title='Algorithms'), yaxis=go.YAxis(title='Score'))
-}, show_link=False, filename='plot-document-length.html')
+}, show_link=False, filename='plot-document-length.html', auto_open=False)
+
+
+import gradings
+grades = gradings.fetchGrades()
+
+py.plot({
+    'data': [
+        go.Bar(
+            name=str(cl),
+            x=[str(cl)],
+            y=[count]
+        )
+        for cl, count in grades['count-tree'].iteritems()
+    ],
+    'layout': go.Layout(xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
+}, show_link=False, filename='plot-phrase-user-count-tree.html')
