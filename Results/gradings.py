@@ -1,6 +1,23 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 
+
+def readCSVLine(line, attr=None):
+	l = line.strip()[1:-1].split('"§§"')
+	if attr == None: return l
+	return l[attr]
+
+import sys
+sys.path.append('../gensim')
+import dotenv
+dotenv.load()
+import gensim
+print dotenv.get('DOC2VEC_MODEL')
+model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+def similarity(s1, s2):
+	global model
+	return model.docvecs.similarity_unseen_docs(model, s1.split(), s2.split())
+
 def fetchGrades():
 	controlSentsPos = [278,202,152]
 	controlSentsNeg = [292,126]
@@ -12,47 +29,36 @@ def fetchGrades():
 	# Negative
 	# 292 Två bilar krockade med varandra i korsningen utanför Örnsköldsvik. -> Innan Börje Stenberg Leif Dessa svåra _UNK : Anders
 	# 126 Han såg inte till särskilt boende på plattsen där han skadades för den 90-åriga Sundsvallskvinnan. -> En man i 00-årsåldern är misstänkt för snatteri på torsdagskvällen vid 00 . 00-tiden på lördagen.
-	
+
+	import collections
 	import urllib2
 	gradeCSV = urllib2.urlopen("http://projects.godesity.se/betygsattomskrivningar/data/classifies.txt").read().split('\n')
 	sentenceOrig = urllib2.urlopen("http://projects.godesity.se/betygsattomskrivningar/data/sentence-orig.txt").read().split('\n')
-	headings = False
-	countTree = dict()
+	sentencePred = urllib2.urlopen("http://projects.godesity.se/betygsattomskrivningar/data/sentence-pred.txt").read().split('\n')
+	headings = {attr: i for i, attr in enumerate(readCSVLine(gradeCSV[0]))}
+	gradeCSV = gradeCSV[1:]
+	uuids = [int(readCSVLine(line)[headings['uuid']]) for line in gradeCSV]
+	grades = [[float(grade) 
+					for i, grade in enumerate(readCSVLine(line, headings['class']).split(';')) if i < 3]
+	 		 for line in gradeCSV]
+	controlPosGrades = [lgrades for rowNr, lgrades in enumerate(grades) if uuids[rowNr]-1 in controlSentsPos]
+	controlNegGrades = [lgrades for rowNr, lgrades in enumerate(grades) if uuids[rowNr]-1 in controlSentsNeg]
+	validateGrades = [lgrades for rowNr, lgrades in enumerate(grades) if not (uuids[rowNr]-1 in controlSentsPos or uuids[rowNr]-1 in controlSentsNeg)]
+	meanGrades = [sum(lgrades) / len(lgrades) for lgrades in validateGrades]
 
-	m = 0.0
-	c = 0.0
-	for rowNr, line in enumerate(gradeCSV):
-		line = line.strip()[1:-1].split('"§§"')
-		if not headings:
-			headings = {attr: i for i, attr in enumerate(line)}
-			continue
-		id = line[headings['uuid']]
-		grades = [float(grade) for i, grade in enumerate(line[headings['class']].split(';')) if i < 3]
-		meanGrade = sum(grades) / len(grades)
-		m += sum(grades)
-		c += len(grades)
+	validateGrades = [grade for lgrades in grades for grade in lgrades]
+	countTree = collections.Counter(validateGrades)
 
-		currId = int(line[headings['uuid']])-1
-		if currId in controlSentsPos:
-			print 'Positive: ', grades, sentenceOrig[rowNr]
-			continue
-
-		if currId in controlSentsNeg:
-			print 'Negative: ', grades, sentenceOrig[rowNr]
-			continue
-
-		for grade in grades:
-			if grade in countTree:
-				countTree[grade] += 1
-			else: countTree[grade] = 1
-		#if meanGrade in countTree: countTree[meanGrade] += 1
-		#else: countTree[meanGrade] = 1
-
-	print countTree
-	print "TOTAL MEAN: ", m / c
+	meanControlPosGrades = [sum(lgrades) / len(lgrades) for lgrades in controlPosGrades]
+	meanControlNegGrades = [sum(lgrades) / len(lgrades) for lgrades in controlNegGrades]
+	doc2vecGrades = [similarity(sentenceOrig[i], sentencePred[i]) for i, sent in enumerate(sentenceOrig)]
 	return {
+		'mean-validate-grades': meanGrades,
+		'mean-control-pos-grades': meanControlPosGrades,
+		'mean-control-neg-grades': meanControlNegGrades,
+		'doc2vec-grades': doc2vecGrades,
 		'count-tree': countTree,
-		'mean': m / c
+		'mean': sum([sum(lgrades) for lgrades in grades]) / (3 * len(grades))
 	}
 
 if __name__ == '__main__':

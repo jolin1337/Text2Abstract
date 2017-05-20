@@ -57,11 +57,19 @@ grades = gradings.fetchGrades()
 py.plot({
     'data': [
         go.Bar(
-            name=str(cl),
-            x=[str(cl)],
-            y=[count]
+            name='-',
+            x=[cl for cl, count in grades['count-tree'].iteritems()],
+            y=[count for cl, count in grades['count-tree'].iteritems()]
         )
-        for cl, count in grades['count-tree'].iteritems()
     ],
     'layout': go.Layout(xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
 }, show_link=False, filename='plot-phrase-user-count-tree.html')
+py.plot({
+    'data': [
+        go.Box(name='Validation grades', y=[g for g in grades['mean-validate-grades']]),
+        go.Box(name='Control positive grades', y=[g for g in grades['mean-control-pos-grades']]),
+        go.Box(name='Control negative grades', y=[g for g in grades['mean-control-neg-grades']]),
+        go.Box(name='Document vector grades', y=[g for g in grades['doc2vec-grades']])
+    ],
+    'layout': go.Layout(xaxis=go.XAxis(title='Data-set'), yaxis=go.YAxis(title='Sentence grade'))
+}, show_link=False, filename='plot-phrase-box-data-sets.html')
