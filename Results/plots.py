@@ -20,7 +20,7 @@ for algorithm in algorithms:
                     marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*200, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ]),
-        'layout': go.Layout(xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
+        'layout': go.Layout(title=algorithm + ' classifier', xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
     }, show_link=False, filename='plot-matrix-' + algorithm + '.html', auto_open=False)
 
 py.plot({
@@ -31,7 +31,7 @@ py.plot({
         ])
         for algorithm in algorithms
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Algorithm'), yaxis=go.YAxis(title='Score'))
+    'layout': go.Layout(title="Variance of document vector parameters", xaxis=go.XAxis(title='Algorithm'), yaxis=go.YAxis(title='Score'))
 }, show_link=False, filename='plot-variance-of-input.html', auto_open=False)
 
 py.plot({
@@ -47,7 +47,7 @@ py.plot({
         )
         for algorithm in algorithms
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Algorithms'), yaxis=go.YAxis(title='Score'))
+    'layout': go.Layout(title="Evaluation of the document lengths impact on the score", xaxis=go.XAxis(title='Algorithms'), yaxis=go.YAxis(title='Score'))
 }, show_link=False, filename='plot-document-length.html', auto_open=False)
 
 
@@ -62,7 +62,7 @@ py.plot({
             y=[count for cl, count in grades['count-tree'].iteritems()]
         )
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
+    'layout': go.Layout(title="Histogram of user grades", xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
 }, show_link=False, filename='plot-phrase-user-count-tree.html')
 py.plot({
     'data': [
@@ -71,5 +71,5 @@ py.plot({
         go.Box(name='Control negative grades', y=[g for g in grades['mean-control-neg-grades']]),
         go.Box(name='Document vector grades', y=[g for g in grades['doc2vec-grades']])
     ],
-    'layout': go.Layout(xaxis=go.XAxis(title='Data-set'), yaxis=go.YAxis(title='Sentence grade'))
+    'layout': go.Layout(title="Variations of the grades", xaxis=go.XAxis(title='Data-set'), yaxis=go.YAxis(title='Sentence grade'))
 }, show_link=False, filename='plot-phrase-box-data-sets.html')

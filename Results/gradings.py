@@ -7,13 +7,14 @@ def readCSVLine(line, attr=None):
 	if attr == None: return l
 	return l[attr]
 
+import os
 import sys
 sys.path.append('../gensim')
 import dotenv
-dotenv.load()
+dotenv.load_dotenv('../gensim/.env')
 import gensim
-print dotenv.get('DOC2VEC_MODEL')
-model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
+
+model = gensim.models.Doc2Vec.load(os.environ.get('DOC2VEC_MODEL'))
 def similarity(s1, s2):
 	global model
 	return model.docvecs.similarity_unseen_docs(model, s1.split(), s2.split())
