@@ -2,6 +2,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 #import pandas as pd
 import ast
+from numpy import median, array as nparray
 
 matrixDocuments = ast.literal_eval(open("classify_result_2.2_vary_documents.pjson").read())
 documentLengthData = ast.literal_eval(open("classify_result_2.2_separate_document_lengths.pjson").read())
@@ -12,22 +13,26 @@ for algorithm in algorithms:
         'data': ([
             go.Scatter(x=[measure['category_count']],
                     y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
-                    marker=go.Marker(color=[measure['score']], size=measure['score']*200, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    marker=go.Marker(color=[measure['score']], size=measure['score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ] + [
             go.Scatter(x=[measure['category_count']],
                     y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
-                    marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*200, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ]),
         'layout': go.Layout(title=algorithm + ' classifier', xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
     }, show_link=False, filename='plot-matrix-' + algorithm + '.html', auto_open=False)
 
+def varianceDocument(algorithm):
+    global matrixDocuments
+    return [measure['score'] for measure in matrixDocuments if measure['category_count'] == 25 and round(measure['document_count'] / (1000 * measure['category_count'])) * 1000 == 10000 and algorithm in measure['classifier']]
+
 py.plot({
     'data': [
         go.Box(name=algorithm,y=[
-            measure['score'] #* 10 * 10010 / (measure['category_count'] * measure['document_count'])
-            for measure in matrixDocuments if measure['category_count'] == 25 and round(measure['document_count'] / (1000 * measure['category_count'])) * 1000 == 10000 and algorithm in measure['classifier']
+            measure - median(nparray(varianceDocument(algorithm))) #* 10 * 10010 / (measure['category_count'] * measure['document_count'])
+            for measure in varianceDocument(algorithm)
         ])
         for algorithm in algorithms
     ],
@@ -58,9 +63,10 @@ py.plot({
     'data': [
         go.Bar(
             name='-',
-            x=[cl for cl, count in grades['count-tree'].iteritems()],
+            x=[cl for cl, count in countTree],
             y=[count for cl, count in grades['count-tree'].iteritems()]
         )
+        for countTree in grades['count-tree'].iteritems()
     ],
     'layout': go.Layout(title="Histogram of user grades", xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
 }, show_link=False, filename='plot-phrase-user-count-tree.html')

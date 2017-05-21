@@ -47,8 +47,11 @@ def fetchGrades():
 	validateGrades = [lgrades for rowNr, lgrades in enumerate(grades) if not (uuids[rowNr]-1 in controlSentsPos or uuids[rowNr]-1 in controlSentsNeg)]
 	meanGrades = [sum(lgrades) / len(lgrades) for lgrades in validateGrades]
 
-	validateGrades = [grade for lgrades in grades for grade in lgrades]
-	countTree = collections.Counter(validateGrades)
+	# validateGrades = [grade for lgrades in grades for grade in lgrades]
+	countTree = [
+		[grade for lgrades in grades for i, grade in enumerate(lgrades) if i == 0]
+		for i in range(3)
+	]
 
 	meanControlPosGrades = [sum(lgrades) / len(lgrades) for lgrades in controlPosGrades]
 	meanControlNegGrades = [sum(lgrades) / len(lgrades) for lgrades in controlNegGrades]
