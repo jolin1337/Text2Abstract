@@ -21,7 +21,7 @@ for algorithm in algorithms:
                     marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ]),
-        'layout': go.Layout(title=algorithm + ' classifier', xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
+        'layout': go.Layout(title=algorithm.replace('ss', 's') + ' classifier', xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
     }, show_link=False, filename='plot-matrix-' + algorithm + '.html', auto_open=False)
 
 def varianceDocument(algorithm):
@@ -62,13 +62,13 @@ grades = gradings.fetchGrades()
 py.plot({
     'data': [
         go.Bar(
-            name='-',
-            x=[cl for cl, count in countTree],
-            y=[count for cl, count in grades['count-tree'].iteritems()]
+            name=str(i+1) + '-th iteration',
+            x=[cl for cl, count in countTree.iteritems()],
+            y=[count for cl, count in countTree.iteritems()]
         )
-        for countTree in grades['count-tree'].iteritems()
+        for i, countTree in enumerate(grades['count-tree'])
     ],
-    'layout': go.Layout(title="Histogram of user grades", xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
+    'layout': go.Layout(barmode='stack', title="Histogram of user grades", xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
 }, show_link=False, filename='plot-phrase-user-count-tree.html')
 py.plot({
     'data': [

@@ -49,7 +49,7 @@ def fetchGrades():
 
 	# validateGrades = [grade for lgrades in grades for grade in lgrades]
 	countTree = [
-		[grade for lgrades in grades for i, grade in enumerate(lgrades) if i == 0]
+		collections.Counter([grade for lgrades in grades for j, grade in enumerate(lgrades) if j == i])
 		for i in range(3)
 	]
 
