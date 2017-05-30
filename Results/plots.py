@@ -13,12 +13,12 @@ for algorithm in algorithms:
         'data': ([
             go.Scatter(x=[measure['category_count']],
                     y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
-                    marker=go.Marker(color=[measure['score']], size=measure['score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    marker=go.Marker(color=[measure['score']], size=measure['score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=1.0, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ] + [
             go.Scatter(x=[measure['category_count']],
                     y=[round(measure['document_count'] / measure['category_count'] / 1000) * 1000],
-                    marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=0.5, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
+                    marker=go.Marker(color=[measure['dev_score']], size=measure['dev_score']*70, sizemode='area', sizeref=131868, showscale=True, cmax=1.0, cmin=0, colorscale=[[0, 'hsl(0,50%,50%)'], [0.5, 'hsl(50,70%,50%)'], [1, 'hsl(90,50%,50%)']]),
                     mode='markers', showlegend=False, name=measure['dev_score']) for measure in matrixDocuments if measure['doc2vec'] == 'original' and algorithm in measure['classifier']
         ]),
         'layout': go.Layout(title=algorithm.replace('ss', 's') + ' classifier', xaxis=go.XAxis(title='Category quantity'), yaxis=go.YAxis(title='Document quantity'))
