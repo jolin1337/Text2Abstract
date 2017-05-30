@@ -72,6 +72,17 @@ py.plot({
 }, show_link=False, filename='plot-phrase-user-count-tree.html')
 py.plot({
     'data': [
+        go.Bar(
+            name=str(i+1) + '-th iteration',
+            x=[cl for cl, count in countTree.iteritems()],
+            y=[count for cl, count in countTree.iteritems()]
+        )
+        for i, countTree in enumerate(grades['count-tree-control'])
+    ],
+    'layout': go.Layout(barmode='stack', title="Histogram of user grades", xaxis=go.XAxis(title='Grade', dtick=0.25), yaxis=go.YAxis(title='Sentence quantity'))
+}, show_link=False, filename='plot-phrase-user-count-tree-control.html')
+py.plot({
+    'data': [
         go.Box(name='Validation grades', y=[g for g in grades['mean-validate-grades']]),
         go.Box(name='Control positive grades', y=[g for g in grades['mean-control-pos-grades']]),
         go.Box(name='Control negative grades', y=[g for g in grades['mean-control-neg-grades']]),
