@@ -52,6 +52,10 @@ def fetchGrades():
 		collections.Counter([grade for lgrades in grades for j, grade in enumerate(lgrades) if j == i])
 		for i in range(3)
 	]
+	countTreeControl = [
+		collections.Counter([grade for lgrades in controlPosGrades for j, grade in enumerate(lgrades) if j == i])
+		for i in range(3)
+	]
 
 	meanControlPosGrades = [sum(lgrades) / len(lgrades) for lgrades in controlPosGrades]
 	meanControlNegGrades = [sum(lgrades) / len(lgrades) for lgrades in controlNegGrades]
@@ -62,6 +66,7 @@ def fetchGrades():
 		'mean-control-neg-grades': meanControlNegGrades,
 		'doc2vec-grades': doc2vecGrades,
 		'count-tree': countTree,
+		'count-tree-control': countTreeControl,
 		'mean': sum([sum(lgrades) for lgrades in grades]) / (3 * len(grades))
 	}
 

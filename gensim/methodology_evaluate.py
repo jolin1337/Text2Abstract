@@ -17,6 +17,8 @@ import numpy as np
 import dotenv
 dotenv.load()
 
+resultFile = open('../Results/classify_result_2.3_vary_params_documents.pjson', 'w')
+
 with open(dotenv.get('ARTICLE_PATH') + '/categories.pjson') as pjsonFile:
 	categories = ast.literal_eval(unicode(pjsonFile.read()))
 
@@ -59,6 +61,7 @@ def addArticlesToVecDict(vecDict, data, documents_per_category=None, defaultCate
 	return count.keys()
 
 def dgensim(dictionary, devDict, modelPath, models):
+	global resultFile
 	dictionary.setModel(dotenv.get('TRAINED_SOURCES_PATH', './') + 'doc2vec_MM_14000a_' + modelPath + '_allc.model')
 	devDict.setModel(dotenv.get('TRAINED_SOURCES_PATH', './') + 'doc2vec_MM_14000a_' + modelPath + '_allc.model')
 	X_train, X_test, Y_train, Y_test = \
@@ -76,14 +79,32 @@ def dgensim(dictionary, devDict, modelPath, models):
 	}
 	for idx, model in enumerate(models):
 		info['classifier'] = str(model)
-		clf = model.train(X_train, Y_train)
-
-		info['score'] = model.score(clf, X_test, Y_test)
-		info['dev_score'] = model.score(clf, devDict.X, devDict.Y)
-		# Y_pred = clf.predict(X_test)
-		# from sklearn.metrics import confusion_matrix
-		# print confusion_matrix(Y_test, Y_pred)
-		print info
+		classifier = model.getClassifier()
+		params = model.getAlgorithmParameters()
+		paramValueMapping = [ [0, param, [val for val in values]] for idx, (param, values) in enumerate(params.iteritems()) ]
+		totalNumModels = len([value for param, values in params.iteritems() for value in values])
+		numModels = 0
+		while sum([v[0] for v in paramValueMapping]) > 0 or numModels == 0:
+			paramValueSet = {}
+			for paramValue in paramValueMapping:
+				paramValueSet[paramValue[1]] = paramValue[2][paramValue[0]]
+			clf = model.train(X_train, Y_train, classifier(**paramValueSet))
+			info['params'] = paramValueSet
+			info['score'] = model.score(clf, X_test, Y_test)
+			info['dev_score'] = model.score(clf, devDict.X, devDict.Y)
+			# Y_pred = clf.predict(X_test)
+			# from sklearn.metrics import confusion_matrix
+			# print confusion_matrix(Y_test, Y_pred)
+			print info
+			resultFile.write(str(info) + '\n')
+			numModels += 1
+			# if numModels >= totalNumModels: break
+			for paramValue in paramValueMapping:
+				paramValue[0] += 1
+				if paramValue[0] < len(paramValue[2]): break
+				# if paramValue[1] == paramValueMapping[-1]: exit()
+				paramValue[0] = 0
+				
 
 if __name__ == '__main__' and len(sys.argv) > 1:
 
@@ -116,10 +137,10 @@ if __name__ == '__main__' and len(sys.argv) > 1:
 			dgensim(dictionary, devDict, 'original', models)
 
 	if sys.argv[1] == '--matrix':
-		for category_count in [5, 30]: #range(10, 30, 5):
-			for fix_count in range(max_documents, 1000, -2000):
+		for category_count in [30]: #range(10, 30, 5):
+			for fix_count in [max_documents]: # range(max_documents, 1000, -2000):
 				## Collect the data to be trained and tested on ##
-				# data = gensim_documents.MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category_uuid-filter/', useHeading=True, limit=fix_count)
+				data = gensim_documents.MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category_uuid-filter/', useHeading=True, limit=fix_count)
 				devDict = gensim_documents.VectorDictionary()
 				addArticlesToVecDict(devDict, data=devData,defaultCategories=defaultCategories[:category_count])
 				dictionary = gensim_documents.VectorDictionary()

@@ -22,6 +22,16 @@ def train(x_train, y_train, clf = MLPClassifier(alpha=0.003, solver='lbfgs', act
 def score(model, x, y):
 	pred = model.predict(x)
 	return metrics.f1_score(y, pred, average='micro')
+def getClassifier():
+	return MLPClassifier
+def getAlgorithmParameters():
+	return {
+		'hidden_layer_sizes': [[a for a in (100 for i in range(1, j, 1))] for j in range(2, 8, 1)],
+		'activation': ['identity', 'logistic', 'tanh', 'relu'],
+		'solver': ['lbfgs', 'sgd', 'adam'],
+		'alpha': [i * 0.001 for i in range(5, 21, 5)],
+		'max_iter': [1000]
+	}
 
 if __name__ == '__main__':
 	modelPaths = ['original', 'special', 'summary', 'taggs']
