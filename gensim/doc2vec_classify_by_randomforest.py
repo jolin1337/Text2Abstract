@@ -23,6 +23,18 @@ def score(model, x, y):
 	pred = model.predict(x)
 	return metrics.f1_score(y, pred, average='micro')
 
+def getClassifier():
+	return RandomForestClassifier
+def getAlgorithmParameters():
+	return {
+		'n_estimators': range(5, 26, 5),
+		'criterion': ['gini', 'entropy'],
+		'max_features': [i * 0.1 for i in range(2, 11, 2)] + ['auto', 'sqrt', 'log2'],
+		'max_depth': range(10, 50, 10),
+		'min_samples_split': [i * 0.1 for i in range(2, 9, 2)],
+		'min_samples_leaf': [i * 0.1 for i in range(2, 5, 2)]
+	}
+
 if __name__ == '__main__':
 	data = gensim_documents.MMDBDocumentLists(dotenv.get('ARTICLE_PATH', '.') + '/csv_by_category/', limit=77851)
 	# data = gensim_documents.MMDBDocuments(dotenv.get('ARTICLE_PATH', '.') + '/articles.csv', limit=77851)
