@@ -1,0 +1,32 @@
+{
+	"items": [{
+		"textId": "aaa",
+		"text": "Default red Test 1",
+		"type": "summary",
+		"color": "#00f"
+	},{
+		"textId": "bbb",
+		"text": "Default green Test 2",
+		"type": "summary",
+		"color": "#0f0"
+	}, {
+		"textId": "aaa",
+		"type": "keywords",
+		"keywords": [{
+			"label": "Hästar",
+			"probability": 1.0
+		}, {
+			"label": "Sport",
+			"probability": 0.5
+		}, {
+			"label": "Ekonomi", "probability": 0.0
+		}]
+	}, {
+		"textId": "bbb",
+		"type": "keywords",
+		"keywords": [{
+			"label": "Testing",
+			"probability": 0.5
+		}]
+	}]
+};
