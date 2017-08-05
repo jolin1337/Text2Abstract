@@ -32,8 +32,8 @@ server.app.get('/texts', function (request, response) {
 server.app.get('/text', function (request, response) {
 	// TODO: implement a slice array function to remove all items before the from parameter in request.query
 	var textId = request.query.textId;
-	var textOld = request.query.old;
-	dm.retrieve({old: textOld, where: {textId: textId}}).then(function(items) {
+	var textOld = request.query.old; // Almost never fetch the original data except if you would like to compare the prediction with the "facit"
+	dm.retrieve({ old: textOld, where: { textId: textId }}).then(function(items) {
 		// items.sort((a, b) => { return a.textId < b.textId; });
 		response.end(JSON.stringify({items: items}));
 	}).catch(function(e) {
