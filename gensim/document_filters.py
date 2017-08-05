@@ -101,8 +101,9 @@ def printAnomalies(inputFile):
 		print categories
 
 if __name__ == '__main__':
-	import dotenv
-	dotenv.load()
+	import os
+	from dotenv import load_dotenv, find_dotenv
+	load_dotenv(find_dotenv())
 
-	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid', rawJsonFilter)
-	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid')
+	filterArticlesFromCSV(os.environ.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140', os.environ.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140-filter-uuid', rawJsonFilter)
+	printAnomalies(os.environ.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_28_1140-filter-uuid')
