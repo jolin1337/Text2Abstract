@@ -56,6 +56,21 @@ def rawJsonFilter(headline, columns):
 	else:
 		return False
 
+def convertToFasttextFormat(inputFile):
+	csv = open(inputFile, 'r')
+	headline = False
+	import re
+	for line in csv:
+		columns = line[1:-2].split('"§§"')
+		if headline == False:
+			headline = {c: i for i, c in enumerate(columns)}
+			continue
+		categories = ast.literal_eval(unicode(columns[headline['category']]))
+		categories = re.sub(u'[åä]', u'a', categories[0][0]['name'].lower(), flags=re.UNICODE)
+		categories = re.sub(u'[ö]', u'o', categories, flags=re.UNICODE)
+		categories = re.sub(u' ', u'-', categories, flags=re.UNICODE)
+		print u'__label__' + categories, columns[headline['body']]
+
 def printAnomalies(inputFile):
 	csv = open(inputFile, 'r')
 	headline = False
@@ -83,7 +98,7 @@ def printAnomalies(inputFile):
 				smallestDocuments[i] = columns
 				smallestDocuments[i][headline['body']] = currentDocument
 				break
-		
+
 		for i, largestDocument in enumerate(largestDocuments):
 			if not largestDocument or len(largestDocument[headline['body']]) < len(currentDocument):
 				largestDocuments[i] = columns
@@ -104,5 +119,6 @@ if __name__ == '__main__':
 	import dotenv
 	dotenv.load()
 
-	filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid', rawJsonFilter)
-	printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid')
+	# filterArticlesFromCSV(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_mars_31_2237', dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid', rawJsonFilter)
+	# printAnomalies(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid')
+	convertToFasttextFormat(dotenv.get('ARTICLE_PATH', '.') + '/tmp-articles-dump_april_16_1205-filter-uuid')
