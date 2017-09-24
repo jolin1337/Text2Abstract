@@ -33,7 +33,7 @@ class LabeledLineSentence(object):
 class VectorDictionary(object):
     def __init__(self, model=gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))):
         # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
-        if isinstance(model, str) or isinstance(model, unicode):
+        if type(model) in ['str', 'unicode']: # isinstance(model, str) or isinstance(model, unicode):
             self.model = gensim.models.Doc2Vec.load(model)
         else:
             self.model = model
@@ -44,9 +44,9 @@ class VectorDictionary(object):
     def setModel(self, model):
         self.model = model
     def addToDictionary(self, article, pred=None):
-        if isinstance(article, basestring):
-            article = Article(content=article, category=pred)
-        if not isinstance(article, Article) or article.content == 'None':
+        if isinstance(article, str):
+            article = Article(pageid='', title='', content=article, category=pred)
+        if not isinstance(article, Article) or article.content == 'None' or article.content == '':
             return False
         if not article.category in self.labels:
             self.labels.append(article.category)
@@ -139,7 +139,7 @@ class MMDBDocuments(object):
             "body": 2,
             "category": 3
         }
-        for (id, lineData) in enumerate(open(self.corpus)):
+        for (id, lineData) in enumerate(open(self.corpus, encoding='utf-8', errors='ignore')):
             # If we read enough articles: abort
             if self.limit > -1 and self.limit <= pageCount:
                 break
@@ -179,7 +179,7 @@ class MMDBDocumentLists(object):
             i = (i+1) % file_count
             try:
                 # print files, file_count
-                yield files[i].next()
+                yield next(files[i])
 
             except StopIteration as e:
                 files.remove(files[i])

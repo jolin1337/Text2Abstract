@@ -8,7 +8,7 @@ MAINTAINER Johannes Lindén <johannes@godesity.se>
 ENV SYNTAXNETDIR=/opt/tensorflow PATH=$PATH:/root/bin
 ENV TEXT2ABSTRACT_DIR=/opt/Text2Abstract
 
-RUN mkdir -p $SYNTAXNETDIR && mkdir -p TEXT2ABSTRACT_DIR
+RUN mkdir -p $SYNTAXNETDIR && mkdir -p $TEXT2ABSTRACT_DIR
 WORKDIR $TEXT2ABSTRACT_DIR
 
 # Update and install dependencies
@@ -41,23 +41,21 @@ RUN pip install psycopg2 # Postgres database interface for python
 EXPOSE 3000
 EXPOSE 8080
 
-# WORKDIR $SYNTAXNETDIR
-# RUN pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl
-#     && wget https://github.com/bazelbuild/bazel/releases/download/0.3.1/bazel-0.3.1-installer-linux-x86_64.sh \
-#     && chmod +x bazel-0.3.1-installer-linux-x86_64.sh \
-#     && ./bazel-0.3.1-installer-linux-x86_64.sh --user \
-#     && git clone --recursive https://github.com/tensorflow/models.git \
-#     && cd $SYNTAXNETDIR/models/syntaxnet/tensorflow \
-#     && echo "\n\n\n\n" | ./configure \
-#     && apt-get autoremove -y \
-#     && apt-get clean
+WORKDIR $SYNTAXNETDIR
+RUN pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc0-cp27-none-linux_x86_64.whl \
+    && wget https://github.com/bazelbuild/bazel/releases/download/0.4.5/bazel-0.4.5-installer-linux-x86_64.sh \
+    && chmod +x bazel-0.4.5-installer-linux-x86_64.sh \
+    && ./bazel-0.4.5-installer-linux-x86_64.sh --user \
+    && git clone --recursive https://github.com/tensorflow/models.git \
+    && cd $SYNTAXNETDIR/models/syntaxnet/tensorflow \
+    && echo "\n\n\n\n" | ./configure
 
 # RUN cd $SYNTAXNETDIR/models/syntaxnet \
 #     && bazel test syntaxnet/... util/utf8/...
 
-# WORKDIR $SYNTAXNETDIR/models/syntaxnet
+WORKDIR $SYNTAXNETDIR/models/syntaxnet
 
-#CMD [ "sh", "-c", "echo 'Bob brought the pizza to Alice.' | syntaxnet/demo.sh" ]
+CMD [ "sh", "-c", "echo 'Bob brought the pizza to Alice.' | syntaxnet/demo.sh" ]
 
 # RUN mkdir swe_model \
 # 	&& cd swe_model \
