@@ -31,7 +31,9 @@ class LabeledLineSentence(object):
             yield gensim.models.doc2vec.LabeledSentence(words=line.split(), tags=['SENT_%s' % uid])
 
 class VectorDictionary(object):
-    def __init__(self, model=gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))):
+    def __init__(self, model=None):
+        if model is None:
+            model = gensim.models.Doc2Vec.load(dotenv.get('DOC2VEC_MODEL'))
         # Initiate the doc2vec model to be used as the distance measurment in the cluster algorithm
         if type(model) in ['str', 'unicode']: # isinstance(model, str) or isinstance(model, unicode):
             self.model = gensim.models.Doc2Vec.load(model)
@@ -78,7 +80,7 @@ class WikiCorpusDocuments(object):
         self.limit = limit
         self.useLabeldTraining = useLabeldTraining
 
-    #Iteration function which will be called from yield every iteration in an 
+    #Iteration function which will be called from yield every iteration in an
     # outer loop
     def __iter__(self):
         # Create an iterator for all articles in the file of self.corpus
@@ -97,7 +99,7 @@ class WikiCorpusDocuments(object):
             article = gensim.corpora.wikicorpus.remove_markup(article)
             # Remove ., !, ; etc. from the article so only the words are left
             doc = manipulateArticle(article)
-            
+
             # Create a new article object based on the article and title
             articleObj = Article(pageid, title, article)
 
@@ -109,7 +111,7 @@ class WikiCorpusDocuments(object):
                 yield gensim.models.doc2vec.LabeledSentence(words=doc.split(), tags=['SENT_%s' % pageid, title])
             else:
                 yield article.split() #(articleObj, doc)
-    
+
 
 # Remove all non word characters
 import re
@@ -155,7 +157,8 @@ class MMDBDocuments(object):
             articleData[heading['title']]
             articleData[heading['body']]
             articleData[heading['category']]
-            article = Article(id, articleData[heading['title']], articleData[heading['body']], articleData[heading['category']])
+            articleData[heading['uuid']]
+            article = Article(articleData[heading['uuid']], articleData[heading['title']], articleData[heading['body']], articleData[heading['category']])
             if callable(self.articleMod):
                 article = self.articleMod(article)
 

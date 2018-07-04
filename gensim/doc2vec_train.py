@@ -10,7 +10,7 @@ import bz2
 from os import listdir
 from os.path import isfile, join
 
-from PyTeaser.pyteaser import Summarize
+#from PyTeaser.pyteaser import Summarize
 
 from numpy import dot, sqrt
 from gensim_documents import manipulateArticle, Article, LabeledLineSentence, WikiCorpusDocuments, MMDBDocuments, MMDBDocumentLists
@@ -83,8 +83,8 @@ def traindoc2vec(sentence, linear=True, model_filename='tmp.model'):
     model.build_vocab(sentence)
 
     for epoch in range(10):
-        print "Epoch: ", epoch
-        model.train(sentence)
+        print("Epoch: ", epoch)
+        model.train(sentence,total_examples=model.corpus_count, epochs=model.epochs)
         model.alpha -= 0.002 # decrease the learning rate
         model.min_alpha = model.alpha # fix the learning rate, no deca
     model.save(model_filename)
@@ -115,8 +115,8 @@ def doc2vecModeling(limit=5000):
         for summary in summaries:
             wordCount = wordCount + len(summary.split())
             #fout.write(summary.encode('UTF-8'))
-        print "Words in original article: ", len(article.content)
-        #print "Words in summary: ", wordCount
+        print("Words in original article: ", len(article.content))
+        #print("Words in summary: ", wordCount)
         #fout.write("\n- - - - -\n")
         if prevArtikel != "":
             sim = model.docvecs.similarity_unseen_docs(model, manipulatedArticle, prevArtikel)
@@ -125,10 +125,10 @@ def doc2vecModeling(limit=5000):
             #tmp = gensim.matutils.unitvec(vecA) - gensim.matutils.unitvec(vecB)
             #sim = sqrt(dot(tmp.T, tmp))
             
-            print "Article similarities: "
-            print article.title.encode('UTF-8') + " <=> " + prevTitle.encode('UTF-8') + " gives a similarity of %s" % sim
+            print("Article similarities: ")
+            print(article.title.encode('UTF-8') + " <=> " + prevTitle.encode('UTF-8') + " gives a similarity of %s" % sim)
             if sim > 1.0:
-                print article.content.encode('UTF-8')
+                print(article.content.encode('UTF-8'))
             #fout.write("%s" % sim)
             #fout.write("\n")
             if sim > maxSim:
@@ -144,7 +144,7 @@ def doc2vecModeling(limit=5000):
                 #fout.write(prevTitle.encode('UTF-8'))
                 #fout.write(prevArtikel.encode('UTF-8'))
                 #fout.write("----__End")
-                print article.title, ",", prevTitle, "=> ", sim
+                print(article.title, ",", prevTitle, "=> ", sim)
                 #break
                 pass
 
@@ -158,42 +158,42 @@ if __name__ == '__main__':
         linear = '_linear'
         if i == 1:
             linear = ''
-        print "Original", linear
+        print("Original", linear)
         # CBOW - original
-        data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH') + '/csv_by_category', limit=1000, useLabeldTraining=True, 
+        data = MMDBDocumentLists('../MM/csv_by_category', limit=1000, useLabeldTraining=True, 
             articleMod=lambda article: article)
         
-        model = traindoc2vec(data, model_filename=dotenv.get('TRAINED_SOURCES_PATH') + '/doc2vec_MM_14000a_original' + linear + '_allc.model')
+        model = traindoc2vec(data, model_filename='trained-sources/doc2vec_MM_14000a_original' + linear + '_allc.model')
 
-        print "Summary", linear
+        print("Summary", linear)
         # CBOW - summary doc2vec
-        data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH') + '/csv_by_category', limit=1000, useLabeldTraining=True, 
-            articleMod=lambda article: Article( 
-                                            article.pageid, 
-                                            article.title, 
-                                            ' '.join(Summarize(article.title, "".join(article.content))),
-                                            article.category))
+        #data = MMDBDocumentLists('../MM/csv_by_category', limit=1000, useLabeldTraining=True, 
+        #    articleMod=lambda article: Article( 
+        #                                    article.pageid, 
+        #                                    article.title, 
+        #                                    ' '.join(Summarize(article.title, "".join(article.content))),
+        #                                    article.category))
 
-        model = traindoc2vec(data, model_filename=dotenv.get('TRAINED_SOURCES_PATH') + '/doc2vec_MM_14000a_summary' + linear + '_allc.model')
+        model = traindoc2vec(data, model_filename='trained-sources/doc2vec_MM_14000a_summary' + linear + '_allc.model')
 
-        print "Special", linear
+        print("Special", linear)
         # CBOW - special doc2vec
-        data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH') + '/csv_by_category', limit=1000, useLabeldTraining=True, 
+        data = MMDBDocumentLists('../MM/csv_by_category', limit=1000, useLabeldTraining=True, 
             articleMod=lambda article: Article( 
                                             article.pageid, 
                                             article.title, 
                                             re.sub('[^A-Za-z0-9 ]+', '', article.content), 
                                             article.category))
 
-        model = traindoc2vec(data, model_filename=dotenv.get('TRAINED_SOURCES_PATH') + '/doc2vec_MM_14000a_special' + linear + '_allc.model')
+        model = traindoc2vec(data, model_filename='trained-sources/doc2vec_MM_14000a_special' + linear + '_allc.model')
 
-        print "Tag", linear
+        print("Tag", linear)
         # CBOW - tag doc2vec
-        data = MMDBDocumentLists(dotenv.get('ARTICLE_PATH') + '/csv_by_category', limit=1000, useLabeldTraining=True, 
+        data = MMDBDocumentLists('../MM/csv_by_category', limit=1000, useLabeldTraining=True, 
             articleMod=lambda article: Article( 
                                             article.pageid, 
                                             article.title, 
                                             ' '.join(stemmer.text_to_taggs(article.content)), 
                                             article.category))
 
-        model = traindoc2vec(data, model_filename=dotenv.get('TRAINED_SOURCES_PATH') + '/doc2vec_MM_14000a_taggs' + linear + '_allc.model')
+        model = traindoc2vec(data, model_filename='trained-sources/doc2vec_MM_14000a_taggs' + linear + '_allc.model')

@@ -21,7 +21,7 @@ def tokenize_and_stem(text):
 	return stems
 
 taggArray = []
-for i, tagg in enumerate(open(dotenv.get('ARTICLE_PATH', '.') + '/taggs_new_query_2017_03_16.csv', 'r')):
+for i, tagg in enumerate(open('../MM/taggs_new_query_2017_03_16.csv', 'r')):
 	if i == 0: continue
 	tagg_count = tagg.rsplit(",", 1)
 	taggArray.append((tagg_count[0], 0)) #int(tagg_count[1])))
@@ -60,15 +60,15 @@ if __name__ == '__main__':
 	clf = doc2vec_decissiontree.train(X_train, Y_train)
 	# clf = MLPClassifier(alpha=1, solver='lbfgs', activation='logistic', max_iter=1000)
 	Y_pred = clf.predict(X_test)
-	print "Score = ", clf.score(X_test, Y_test)
+	print("Score = ", clf.score(X_test, Y_test))
 	from sklearn.metrics import confusion_matrix
 	cm = confusion_matrix(Y_test, Y_pred)
-	print cm
-   	cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-   	print "Normalised: "
-   	print cm
-	print dictionary.labels
-	# print tokenize_and_stem(taggs[1:])
+	print(cm)
+	cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+	print("Normalised: ")
+	print(cm)
+	print(dictionary.labels)
+	# print(tokenize_and_stem(taggs[1:]))
 
 # [[ 0.26405868  0.17359413  0.11369193  0.08435208  0.08557457  0.15036675	0.12836186]
  # [ 0.18159509  0.23558282  0.12760736  0.08588957  0.07607362  0.13128834	0.16196319]
