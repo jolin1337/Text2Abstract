@@ -1,0 +1,6 @@
+flask
+flask_cors
+keras
+gensim
+psycopg2
+tensorflow
