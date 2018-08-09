@@ -5,18 +5,19 @@ This project aims to create a self learning application that can detect the subj
 * Train a doc2vec model that converts the input text into a document vector to be used in the categorization step
 * Train a categorizer with LSTM model by feeding the processed training data through the doc2vec model -> LSTM model
 
-This work is a clean version of the project described [here](https://docs.google.com/document/d/1ZHMNeUQRR3IWkfcevRcvv7by5D71AYpK3F3YRKLVlGE/edit) and the github repository [here](https://github.com/jolin1337/Text2Abstract)
+This work is a clean version of the project described [here](https://docs.google.com/document/d/1ZHMNeUQRR3IWkfcevRcvv7by5D71AYpK3F3YRKLVlGE/edit)
 
 
 ## To install
 Navigate to the folder you want to have the project
 ```
-$ git clone <url> auto-categorizer
+$ git clone https://github.com/jolin1337/Text2Abstract auto-categorizer
 $ cd auto-categorizer
+$ git checkout productified-version
 $ python -m venv ./venv
 $ ln -s venv/lib/python3.5/site-packages/learning learning
 $ python -m pip install -r requirements.txt
-$ curl https://drive.google.com/uc?export=download&id=FILE_ID
+$ wget https://drive.google.com/uc?export=download&confirm=no_antivirus&id=12ewf6e2JrElKJRTsfd8S_cSuj4kiQipZ
 $ tar -xvzf trained-models.tar.gz
 $ cp .env.sample .env
 ### Add SOLDR_TOKEN in .env file and do
