@@ -1,16 +1,7 @@
 import mm_services.redshift_handler as rh
-import re
 import json
-
-
-html_pattern = re.compile(r'<.*?>')
-meta_pattern = re.compile(r'[.*?]')
-dspaces_pattern = re.compile(r' +')
-def striphtml(data):
-  html_cleared = html_pattern.sub(' ', data)
-  meta_cleared = meta_pattern.sub(' ', html_cleared)
-  dspaces_cleared = dspaces_pattern.sub(' ', meta_cleared)
-  return dspaces_cleared
+from utils import striphtml
+import traceback
 
 def getCategories(limit=10000):
   rows = rh.run_query("""
@@ -26,12 +17,13 @@ def getCategories(limit=10000):
   return [row['category'] for row in rows]
 
 
-def getArticles(limit=100000, offset=0):
+def getArticles(limit=300000, offset=0):
   categories = getCategories()
   articles = rh.run_query("""
     SELECT uuid,
            data->>'headline' as headline,
            data->>'body' as text,
+           data->'categories' as categories,
            data->'categories'->0->0->>'name' as top_category
     FROM public.articles
     WHERE json_array_length(data->'categories'->0) = 1
@@ -50,7 +42,9 @@ def getArticles(limit=100000, offset=0):
     try:
       article['text'] = striphtml(article['text'])
       article['headline'] = striphtml(article['headline'])
+      article['categories'] = list(set([cs2['name'] for cs1 in article['categories'] for cs2 in cs1]))
     except:
+      traceback.print_exc()
       print("Error here: ", i, article)
       continue
     yield article
