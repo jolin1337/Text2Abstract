@@ -70,7 +70,7 @@ class Categorizer(object):
     self.model = model
     return model
 
-  def train_categorizer(self, x_data, y_data, split_train_val=0.8, checkpoint=None):
+  def train_categorizer(self, x_data, y_data, split_train_val=0.8, **model_args):
     self.categories = list(set(c for y in y_data for c in y))
     y_data = [[self.categories.index(c) for c in y] for y in y_data]
     y_data_one_hot = encode_n_hot_vectors(y_data)
@@ -83,8 +83,8 @@ class Categorizer(object):
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
                     metrics=['accuracy'])
-    model.fit([x_train], [y_train], epochs=self.epochs, validation_data=([x_val], [y_val]),
-              callbacks=[checkpoint] if checkpoint else None)
+    model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
+              **{epochs: self.epochs, **model_args})
     return model
 
   def evaluate_categorizer(self, x_data, y_data):
