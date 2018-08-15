@@ -28,8 +28,9 @@ class CategorizingArticleException(AppException):
   def __init__(self, *argv, **argd):
     super().__init__(*argv, **argd)
   def to_dict(self):
+    super_dict = super().to_dict()
     return {
-      **super().to_dict(),
+      **super_dict,
       "error": "Categorizing article"
     }
 
@@ -47,8 +48,7 @@ def categorize_text(text):
   return {
     'category': category,
     'categoreis': prediction,
-    'text': text,
-    'classified_text': striphtml(text)
+    'text': striphtml(text)
   }
 
 @app.route('/categorize-by-uuid')
@@ -78,4 +78,4 @@ def handle_invalid_usage(error):
                          status=error.status_code)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=os.environ.get('PORT', 5000))

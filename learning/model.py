@@ -18,7 +18,7 @@ class Categorizer(object):
     if deterministic:
       random.seed(0)
     self.deterministic = deterministic
-    self.doc2vec = gensim.models.Doc2Vec.load(model_path + '/doc2vec.model')
+    self.doc2vec = gensim.models.Doc2Vec.load(model_path + '/doc2vec_MM.model')
     if model_name is not None:
       self.model = self.load_model(model_path + '/' + model_name)
       self.categories = self.load_model_json(model_path + '/' + model_name)['categories']
