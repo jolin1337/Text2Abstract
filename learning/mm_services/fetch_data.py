@@ -17,8 +17,8 @@ def getCategories(limit=10000):
   return [row['category'] for row in rows]
 
 
-def getArticles(limit=300000, offset=0):
-  categories = getCategories()
+def getArticles(limit=500000, offset=0):
+  categories = [] # getCategories()
   articles = rh.run_query("""
     SELECT uuid,
            data->>'headline' as headline,
@@ -26,11 +26,11 @@ def getArticles(limit=300000, offset=0):
            data->'categories' as categories,
            data->'categories'->0->0->>'name' as top_category
     FROM public.articles
-    WHERE json_array_length(data->'categories'->0) = 1
-      AND data->>'body' IS NOT NULL
+    WHERE --json_array_length(data->'categories'->0) = 1
+          data->>'body' IS NOT NULL
       AND data->>'headline' IS NOT NULL
-      AND data->'categories'->0->0->>'name' IN (%(categories)s)
-      AND publish_at > '2017-08-01'::timestamp
+      --AND data->'categories'->0->0->>'name' IN (%(categories)s)
+      AND publish_at > '2017-05-10'::timestamp
     LIMIT %(limit)i
     OFFSET %(offset)i
   """ % {

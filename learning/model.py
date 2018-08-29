@@ -2,6 +2,7 @@
 import numpy as np
 import keras
 import gensim
+import sklearn.metrics
 
 import json
 import os
@@ -34,7 +35,7 @@ class Doc2vecModel(object):
       for i, x in enumerate(data):
         yield gensim.models.doc2vec.LabeledSentence(x, [i])
     self.model = gensim.models.Doc2Vec(size=vector_size,
-                                       alpha=alpha, 
+                                       alpha=alpha,
                                        min_alpha=0.00025,
                                        min_count=1,
                                        dm=1)
@@ -124,7 +125,7 @@ class Categorizer(object):
                     optimizer='rmsprop',
                     metrics=['accuracy'])
     model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
-              **{epochs: self.epochs, **model_args})
+              **{'epochs': self.epochs, **model_args})
     return model
 
   def evaluate_categorizer(self, x_data, y_data):
@@ -134,6 +135,8 @@ class Categorizer(object):
     y_data_one_hot = encode_n_hot_vectors(y_data, self.categories)
     x_data_processed = self.preprocess_text(x_data)
     evaluation = self.model.evaluate([x_data_processed], [y_data_one_hot])
+    # y_data_predict = self.model.predict_proba([x_data_processed])[0]
+    # sklearn.metrics.confusion_matrix(y_data_one_hot, y_data_predict)
     print({name: val for name, val in zip(self.model.metrics_names, evaluation)})
 
   def load_model_json(self, model_path):
@@ -195,10 +198,10 @@ def filter_articles_category_quantity(data, threshold):
 
 
 def train_and_store_model(input_file, output, new_doc2vec=False):
-    data = json.load(open(input_file, 'r'))['articles']
-    articles = [(a['text'], a['categories']) for a in data]
-    # articles = [(a['text'], [a['top_category']]) for a in data]
-    top_categories = [
+  data = json.load(open(input_file, 'r'))['articles']
+  articles = [(a['text'], a['categories']) for a in data]
+  # articles = [(a['text'], [a['top_category']]) for a in data]
+  top_categories = [
     'Kultur','Släkt o vänner','Ekonomi',
     'Nostalgi','Mat',
     'Nöje','Trafik','Sport',
@@ -207,34 +210,40 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
     'Utrikes','Motor','Opinion',
     'Blåljus','Näringsliv',
     #'Allmänt'
-    ]
-    all_categories = [
+  ]
+  all_categories = [
     "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
-    ]
-    categories = all_categories
-    random.shuffle(articles)
-    articles = filter_articles(articles, categories)
-    articles = filter_articles_category_quantity(articles, 100)
-    x_data, y_data = zip(*articles)
+  ]
+  location_json = json.load(open('learning/data/municipality_mmarea_map.json', 'r'))
+  location_strings = [m['municipality'] for m in location_json] + [a['name'] for m in location_json for a in m['areas']]
+  _, non_location_categories = zip(*articles)
+  non_location_categories = [category for category in set(non_location_categories) if category not in location_strings]
+  categories = non_location_categories
 
-    ## Train model ##
-    model_path = os.path.dirname(output)
-    output_file = os.path.basename(output)
-    if new_doc2vec:
-        doc2vec = Doc2vecModel()
-        doc2vec.train(x_data)
-        doc2vec.save_model(model_path + '/doc2vec_MM.model')
+  random.shuffle(articles)
+  articles = filter_articles(articles, categories)
+  articles = filter_articles_category_quantity(articles, 100)
+  x_data, y_data = zip(*articles)
 
-    checkpoint = keras.callbacks.ModelCheckpoint(model_path + 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5',
+  ## Train model ##
+  model_path = os.path.dirname(output)
+  output_file = os.path.basename(output)
+  if new_doc2vec:
+    doc2vec = Doc2vecModel()
+    doc2vec.train(x_data)
+    doc2vec.save_model(model_path + '/doc2vec_MM.model')
+
+  checkpoint = keras.callbacks.ModelCheckpoint(model_path + 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5',
                                                monitor='val_loss', mode='min',
                                                save_best_only=True, save_weights_only=True, period=5)
-    categorizer = Categorizer(model_path, deterministic=True)
-    model = categorizer.train_categorizer(x_data, y_data, checkpoint=checkpoint)
-    categorizer.save_model(model_path + '/' + output_file)
+  tensorboard = keras.callbacks.TensorBoard(log_dir=model_path + '/Graph', histogram_freq=0, write_graph=True, write_images=True)
+  categorizer = Categorizer(model_path, deterministic=True)
+  model = categorizer.train_categorizer(x_data, y_data, callbacks=[checkpoint, tensorboard])
+  categorizer.save_model(model_path + '/' + output_file)
 
-    ## Evaluate model ##
-    categorizer = Categorizer(model_path, output_file)
-    categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
+  ## Evaluate model ##
+  categorizer = Categorizer(model_path, output_file)
+  categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
 
 if __name__ == '__main__':
     train_and_store_model('learning/data/articles_all_categories.json', 'learning/trained-models/lstm-multi-categorizer-larger.model')
