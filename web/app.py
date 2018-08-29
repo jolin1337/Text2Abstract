@@ -1,3 +1,4 @@
+#/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from flask import Flask, request, render_template, Response
@@ -12,7 +13,7 @@ from keras.models import model_from_json
 
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-model_path = os.environ.get('MODEL_PATH')
+model_path = os.environ.get('MODEL_PATH') or '.'
 categorizer = model.load_model(model_path + '/lstm-multi-categorizer-larger.model', deterministic=True)
 
 class AppException(Exception):

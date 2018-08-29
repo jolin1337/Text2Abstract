@@ -3,4 +3,5 @@ flask_cors
 keras
 gensim
 psycopg2
+numpy
 tensorflow

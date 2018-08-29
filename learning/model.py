@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import keras
 import gensim
@@ -78,8 +79,8 @@ class Categorizer(object):
     x_train, y_train, x_val, y_val = split_train_validation_data(split_train_val, x_data_processed, y_data_one_hot)
 
     model = self.construct_model(self.categories)
-    if len(sys.argv) > 1:
-      model.load_weights(sys.argv[1])
+    #if len(sys.argv) > 1:
+    #  model.load_weights(sys.argv[1])
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
                     metrics=['accuracy'])
@@ -142,7 +143,6 @@ def filter_articles(data, categories):
     if not y:
       continue
     yield x, y
-  return []
 
 def filter_articles_category_quantity(data, threshold):
   data = list(data)
@@ -153,14 +153,13 @@ def filter_articles_category_quantity(data, threshold):
     if not y:
       continue
     yield x, y
-  return []
 
 
-if __name__ == '__main__':
-  data = json.load(open('learning/data/articles_all_categories.json', 'r'))['articles']
-  articles = [(a['text'], a['categories']) for a in data]
-  # articles = [(a['text'], [a['top_category']]) for a in data]
-  top_categories = [
+def train_and_store_model(input_file, output):
+    data = json.load(open(input_file, 'r'))['articles']
+    articles = [(a['text'], a['categories']) for a in data]
+    # articles = [(a['text'], [a['top_category']]) for a in data]
+    top_categories = [
     'Kultur','Släkt o vänner','Ekonomi',
     'Nostalgi','Mat',
     'Nöje','Trafik','Sport',
@@ -169,25 +168,29 @@ if __name__ == '__main__':
     'Utrikes','Motor','Opinion',
     'Blåljus','Näringsliv',
     #'Allmänt'
-  ]
-  all_categories = [
+    ]
+    all_categories = [
     "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
-  ]
-  categories = all_categories
-  random.shuffle(articles)
-  articles = filter_articles(articles, categories)
-  articles = filter_articles_category_quantity(articles, 100)
-  x_data, y_data = zip(*articles)
+    ]
+    categories = all_categories
+    random.shuffle(articles)
+    articles = filter_articles(articles, categories)
+    articles = filter_articles_category_quantity(articles, 100)
+    x_data, y_data = zip(*articles)
 
-  ## Train model ##
-  model_path = 'learning/trained-models/'
-  checkpoint = keras.callbacks.ModelCheckpoint(model_path + 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5',
+    ## Train model ##
+    model_path = os.path.dirname(output)
+    output_file = os.path.basename(output)
+    checkpoint = keras.callbacks.ModelCheckpoint(model_path + 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5',
                                                monitor='val_loss', mode='min',
                                                save_best_only=True, save_weights_only=True, period=5)
-  categorizer = Categorizer(model_path, deterministic=True)
-  model = categorizer.train_categorizer(x_data, y_data, checkpoint=checkpoint)
-  categorizer.save_model(model_path + '/lstm-multi-categorizer-larger.model')
+    categorizer = Categorizer(model_path, deterministic=True)
+    model = categorizer.train_categorizer(x_data, y_data, checkpoint=checkpoint)
+    categorizer.save_model(model_path + '/' + output_file)
 
-  ## Evaluate model ##
-  categorizer = Categorizer(model_path, 'lstm-multi-categorizer-larger.model')
-  categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
+    ## Evaluate model ##
+    categorizer = Categorizer(model_path, output_file)
+    categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
+
+if __name__ == '__main__':
+    train_and_store_model('learning/data/articles_all_categories.json', 'learning/trained-models/lstm-multi-categorizer-larger.model')
