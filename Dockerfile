@@ -41,9 +41,9 @@ RUN rm requirements.txt get-pip.py
 # Set up the program in the image
 COPY web /opt/program
 COPY learning /opt/program/learning
-COPY sagemaker.sh /opt/program/sagemaker.sh
+COPY sagemaker.py /opt/program/sagemaker.py
 
 WORKDIR /opt/program
 
 
-ENTRYPOINT ["./sagemaker.sh", "serve"]
+ENTRYPOINT ["python3", "sagemaker.py"]

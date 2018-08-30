@@ -72,6 +72,15 @@ def categorize():
     **categorize_text(text)
   }), 200)
 
+@app.route('/ping', methods=['GET'])
+def ping():
+    """Determine if the container is working and healthy. In this sample container, we declare
+    it healthy if we can load the model successfully."""
+    # You can insert a health check here
+
+    status = 200 if health else 404
+    return flask.Response(response='\n', status=status, mimetype='application/json')
+
 @app.errorhandler(AppException)
 def handle_invalid_usage(error):
   print(json.dumps(error.to_dict()))

@@ -14,12 +14,56 @@ from learning.utils import striphtml
 class UnknownModelException(Exception):
     pass
 
+class Doc2vecModel(object):
+  def __init__(self, model=None, deterministic=False):
+    self.model = None
+    self.deterministic = deterministic
+    if model is not None:
+      self.load_model(model)
+
+  def load_model(self, model):
+    self.model = gensim.models.Doc2Vec.load(model)
+    return self
+
+  def save_model(self, model):
+    self.model.save(model)
+    return self
+
+  def train(self, data, epochs=100, vector_size=300, alpha=0.025):
+    def to_labeled_sentence(data):
+      for i, x in enumerate(data):
+        yield gensim.models.doc2vec.LabeledSentence(x, [i])
+    self.model = gensim.models.Doc2Vec(size=vector_size,
+                                       alpha=alpha, 
+                                       min_alpha=0.00025,
+                                       min_count=1,
+                                       dm=1)
+    self.model.build_vocab(to_labeled_sentence(data))
+    for epoch in range(epochs):
+      self.model.train(to_labeled_sentence(data),
+                total_examples=self.model.corpus_count,
+                epochs=self.model.iter)
+      # decrease the learning rate
+      self.model.alpha -= 0.0002
+      # fix the learning rate, no decay
+      self.model.min_alpha = self.model.alpha
+    return self
+
+  def infer_vector(self, words, seed=0):
+    if self.deterministic:
+      self.model.random.seed(seed) # Make the results deterministic for each prediction (obs: not over several runs)
+    return self.model.infer_vector(words)
+
+  def vector_size(self):
+    if self.model:
+      return self.model.vector_size
+    return None
+
 class Categorizer(object):
   def __init__(self, model_path, model_name=None, deterministic=False):
     if deterministic:
       random.seed(0)
-    self.deterministic = deterministic
-    self.doc2vec = gensim.models.Doc2Vec.load(model_path + '/doc2vec_MM.model')
+    self.doc2vec = Doc2vecModel(model_path + '/doc2vec_MM.model', deterministic=deterministic)
     if model_name is not None:
       self.model = self.load_model(model_path + '/' + model_name)
       self.categories = self.load_model_json(model_path + '/' + model_name)['categories']
@@ -30,15 +74,10 @@ class Categorizer(object):
     self.n_layers = 6
     self.epochs = 20
 
-  def infer_vector(self, words, seed=0):
-    if self.deterministic:
-      self.doc2vec.random.seed(seed) # Make the results deterministic for each prediction (obs: not over several runs)
-    return self.doc2vec.infer_vector(words)
-
   def preprocess_text(self, texts):
     text_words = [keras.preprocessing.text.text_to_word_sequence(striphtml(text))[1:]
                   for text in texts]
-    timestep_words = [[self.infer_vector(seq[i*self.timestep:(i+1)*self.timestep], seed=0)
+    timestep_words = [[self.doc2vec.infer_vector(seq[i*self.timestep:(i+1)*self.timestep])
                        for i in range(self.timestep)]
                        for seq in text_words]
     pad_words = [seq[0:self.timestep] + [0] * max(0, self.timestep - len(seq))
@@ -58,7 +97,7 @@ class Categorizer(object):
   def construct_model(self, categories):
     num_classes = len(categories)
     ##### expected input data shape: (batch_size, timesteps, data_dim)
-    input_shape = (self.timestep, self.doc2vec.vector_size,)
+    input_shape = (self.timestep, self.doc2vec.vector_size(),)
     model = keras.models.Sequential()
     model.add(keras.layers.LSTM(50,
               input_shape=input_shape,
@@ -155,7 +194,7 @@ def filter_articles_category_quantity(data, threshold):
     yield x, y
 
 
-def train_and_store_model(input_file, output):
+def train_and_store_model(input_file, output, new_doc2vec=False):
     data = json.load(open(input_file, 'r'))['articles']
     articles = [(a['text'], a['categories']) for a in data]
     # articles = [(a['text'], [a['top_category']]) for a in data]
@@ -181,6 +220,11 @@ def train_and_store_model(input_file, output):
     ## Train model ##
     model_path = os.path.dirname(output)
     output_file = os.path.basename(output)
+    if new_doc2vec:
+        doc2vec = Doc2vecModel()
+        doc2vec.train(x_data)
+        doc2vec.save_model(model_path + '/doc2vec_MM.model')
+
     checkpoint = keras.callbacks.ModelCheckpoint(model_path + 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5',
                                                monitor='val_loss', mode='min',
                                                save_best_only=True, save_weights_only=True, period=5)
