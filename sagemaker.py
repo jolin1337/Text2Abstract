@@ -9,9 +9,9 @@ if __name__ == '__main__':
             app.start()
         if 'train' in sys.argv:
             import learning.model as model
-            input_file = '/opt/ml/input/data/training/data/DEMO-auto-categorizer/'
+            input_file = '/opt/ml/input/data/training/articles_all_categories.json'
             output = '/opt/ml/model/'
-            model.train_and_store(input_file, output)
+            model.train_and_store_model(input_file, output, new_doc2vec=True)
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the
         # DescribeTrainingJob result.
