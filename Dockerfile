@@ -7,7 +7,7 @@ FROM ubuntu:16.04
 MAINTAINER Amazon AI <sage-learner@amazon.com>
 
 
-WORKDIR /opt
+WORKDIR /opt 
 COPY requirements.txt /opt/requirements.txt
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
