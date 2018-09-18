@@ -33,13 +33,14 @@ RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && \
 # keeps Python from writing the .pyc files which are unnecessary in this case. We also update
 # PATH so that the train and serve programs are found when the container is invoked.
 
+ENV MODEL_PATH=/opt/ml/model
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
 ENV PATH="/opt/program:${PATH}"
 RUN rm requirements.txt get-pip.py
 
 # Set up the program in the image
-COPY web /opt/program
+COPY web /opt/program/web
 COPY learning /opt/program/learning
 COPY sagemaker.py /opt/program/sagemaker.py
 

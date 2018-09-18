@@ -2,7 +2,6 @@
 import numpy as np
 import keras
 import gensim
-import sklearn.metrics
 
 import json
 import os
@@ -68,7 +67,7 @@ class Categorizer(object):
     if model_name is not None:
       self.model = self.load_model(model_path + '/' + model_name)
       self.categories = self.load_model_json(model_path + '/' + model_name)['categories']
-      print("Loaded model with %s categories" % ",".join(self.categories))
+      # print("Loaded model with %s categories" % ",".join(self.categories))
     else:
         self.model = None
     self.timestep = 20
@@ -140,7 +139,7 @@ class Categorizer(object):
     print({name: val for name, val in zip(self.model.metrics_names, evaluation)})
 
   def load_model_json(self, model_path):
-    f = open(model_path + '.json', 'r')
+    f = open(model_path + '.json', 'r', encoding='utf-8')
     model_json_str = f.read()
     f.close()
     return json.loads(model_json_str)
@@ -159,6 +158,7 @@ class Categorizer(object):
     model_json['categories'] = self.categories
     json.dump(model_json, open(path + '.json', 'w'))
     self.model.save_weights(path + '.h5')
+    self.doc2vec.save_model(os.path.dirname(path) + '/doc2vec_MM.model')
 
 
 def load_model(model_path, *vargs, **dargs):
@@ -198,7 +198,8 @@ def filter_articles_category_quantity(data, threshold):
 
 
 def train_and_store_model(input_file, output, new_doc2vec=False):
-  data = json.load(open(input_file, 'r'))['articles']
+  input_folder = os.path.dirname(input_file)
+  data = json.load(open(input_file, 'r', encoding='utf-8'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
   # articles = [(a['text'], [a['top_category']]) for a in data]
   top_categories = [
@@ -214,10 +215,10 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   all_categories = [
     "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
   ]
-  location_json = json.load(open('learning/data/municipality_mmarea_map.json', 'r'))
+  location_json = json.load(open(input_folder + '/municipality_mmarea_map.json', 'r', encoding='utf-8'))
   location_strings = [m['municipality'] for m in location_json] + [a['name'] for m in location_json for a in m['areas']]
-  _, non_location_categories = zip(*articles)
-  non_location_categories = [category for category in set(non_location_categories) if category not in location_strings]
+  all_categories = set([category for text, categories in articles for category in categories])
+  non_location_categories = [category for category in all_categories if category not in location_strings]
   categories = non_location_categories
 
   random.shuffle(articles)
@@ -242,8 +243,8 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categorizer.save_model(model_path + '/' + output_file)
 
   ## Evaluate model ##
-  categorizer = Categorizer(model_path, output_file)
-  categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
+  # categorizer = Categorizer(model_path, output_file)
+  # categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
 
 if __name__ == '__main__':
     train_and_store_model('learning/data/articles_all_categories.json', 'learning/trained-models/lstm-multi-categorizer-larger.model')
