@@ -123,6 +123,7 @@ class Categorizer(object):
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
                     metrics=['accuracy'])
+    print("Labels: ", self.categories)
     model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
               **{'epochs': self.epochs, **model_args})
     return model
@@ -197,33 +198,28 @@ def filter_articles_category_quantity(data, threshold):
     yield x, y
 
 
+def filter_article_category_locations(data):
+  location_json = json.load(open('learning/data/municipality_mmarea_map.json', 'r'))
+  location_strings = [m['municipality'] for m in location_json] + [a['name'] for m in location_json for a in m['areas']]
+  all_categories = set([category for text, categories in articles for category in categories])
+  non_location_categories = [category for category in all_categories if category not in location_strings]
+  return filter_articles(data, non_location_categories)
+
+
 def train_and_store_model(input_file, output, new_doc2vec=False):
   input_folder = os.path.dirname(input_file)
   data = json.load(open(input_file, 'r', encoding='utf-8'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
   # articles = [(a['text'], [a['top_category']]) for a in data]
-  top_categories = [
-    'Kultur','Släkt o vänner','Ekonomi',
-    'Nostalgi','Mat',
-    'Nöje','Trafik','Sport',
-    'Inrikes','Fritid','Resor',
-    'Bostad',
-    'Utrikes','Motor','Opinion',
-    'Blåljus','Näringsliv',
-    #'Allmänt'
-  ]
-  all_categories = [
-    "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
-  ]
-  location_json = json.load(open(input_folder + '/municipality_mmarea_map.json', 'r', encoding='utf-8'))
-  location_strings = [m['municipality'] for m in location_json] + [a['name'] for m in location_json for a in m['areas']]
-  all_categories = set([category for text, categories in articles for category in categories])
-  non_location_categories = [category for category in all_categories if category not in location_strings]
-  categories = non_location_categories
 
   random.shuffle(articles)
+  
+  categories = open('data/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   articles = filter_articles(articles, categories)
+  # articles = filter_article_category_locations(articles)
   articles = filter_articles_category_quantity(articles, 100)
+
+  random.shuffle(articles)
   x_data, y_data = zip(*articles)
 
   ## Train model ##
