@@ -1,4 +1,5 @@
 import re
+from keras import backend as K
 
 
 body_pattern = re.compile(r'<([^p\/]).*?>.*?<\/\1.*?>')
@@ -13,3 +14,38 @@ def striphtml(data):
   return dspaces_cleared
 
 
+def split_train_validation_data(split, x_data, y_data):
+  limit_train  = (int)(len(x_data) * split)
+  return x_data[:limit_train], y_data[:limit_train], \
+         x_data[limit_train:], y_data[limit_train:]
+
+
+def f1_score(y_true, y_pred):
+    def recall(y_true, y_pred):
+        """Recall metric.
+
+        Only computes a batch-wise average of recall.
+
+        Computes the recall, a metric for multi-label classification of
+        how many relevant items are selected.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision(y_true, y_pred):
+        """Precision metric.
+
+        Only computes a batch-wise average of precision.
+
+        Computes the precision, a metric for multi-label classification of
+        how many selected items are relevant.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))

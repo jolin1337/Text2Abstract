@@ -9,7 +9,7 @@ import sys
 import random
 import collections
 
-from learning.utils import striphtml
+from learning.utils import striphtml, split_train_validation_data
 
 class UnknownModelException(Exception):
     pass
@@ -164,11 +164,6 @@ class Categorizer(object):
 def load_model(model_path, *vargs, **dargs):
     model_seg = model_path.split('/')
     return Categorizer(*vargs, model_path='/'.join(model_seg[:-1]), model_name=model_seg[-1], **dargs)
-
-def split_train_validation_data(split, x_data, y_data):
-  limit_train  = (int)(len(x_data) * split)
-  return x_data[:limit_train], y_data[:limit_train], \
-         x_data[limit_train:], y_data[limit_train:]
 
 
 def encode_n_hot_vectors(y_data, categories=None):
