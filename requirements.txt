@@ -5,3 +5,8 @@ gensim
 psycopg2
 numpy
 tensorflow
+
+polyglot
+pyicu
+pycld2
+morefessor

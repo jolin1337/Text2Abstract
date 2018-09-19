@@ -176,6 +176,9 @@ def encode_n_hot_vectors(y_data, categories=None):
 
 def filter_articles(data, categories):
   for x, y in data:
+    x = x.strip()
+    if x == '':
+      continue
     y = [c for c in y if c in categories]
     if not y:
       continue
@@ -200,6 +203,19 @@ def filter_article_category_locations(data):
   return filter_articles(data, non_location_categories)
 
 
+def replace_entities(data):
+  import polyglot.text
+  from polyglot.downloader import downloader
+  downloader.download('embeddings2.sv')
+  downloader.download('ner2.sv')
+  for x, y in data:
+    text = polyglot.text.Text(x, hint_language_code='sv')
+    entity_idx = [i for ent in text.entities for i in range(ent.start, ent.end)]
+    words = np.array(list(text.words))
+    words[entity_idx] = [ent.tag for ent in text.entities for i in range(ent.start, ent.end)]
+    x = ' '.join(words)
+    yield x, y
+
 def train_and_store_model(input_file, output, new_doc2vec=False):
   data = json.load(open(input_file, 'r'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
@@ -220,11 +236,13 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categories = open(os.path.dirname(input_file) + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
-  articles = list(filter_articles_category_quantity(articles, 1))
+  articles = filter_articles_category_quantity(articles, 1)
+  articles = list(replace_entities(articles))
 
   random.shuffle(articles)
   x_data, y_data = zip(*articles)
 
+  print("Train model")
   ## Train model ##
   model_path = os.path.dirname(output)
   output_file = os.path.basename(output)
@@ -246,4 +264,5 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
 
 if __name__ == '__main__':
-    train_and_store_model('learning/data/articles_all_categories.json', 'learning/trained-models/lstm-multi-categorizer-larger.model')
+    train_and_store_model('learning/data/articles_all_categories.json',
+                          'learning/trained-models/lstm-multi-categorizer-larger.model', new_doc2vec=True)
