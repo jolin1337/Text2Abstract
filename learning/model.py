@@ -9,7 +9,7 @@ import sys
 import random
 import collections
 
-from learning.utils import striphtml, split_train_validation_data
+from learning.utils import striphtml, split_train_validation_data, f1_score
 
 class UnknownModelException(Exception):
     pass
@@ -122,7 +122,7 @@ class Categorizer(object):
     #  model.load_weights(sys.argv[1])
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
-                    metrics=['accuracy'])
+                    metrics=['accuracy', f1_score])
     print("Labels: ", self.categories)
     model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
               **{'epochs': self.epochs, **model_args})
