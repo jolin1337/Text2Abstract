@@ -34,3 +34,10 @@ $ python learning/model.py
 ```
 $ python web/app.py
 ```
+
+## To run sagemaker docker container
+```
+$ ./build_and_push.sh sagemaker-auto-categorization
+# Then open notebook and train the model or create an endpoint starting jupyter:
+$ jupyter notebook
+```
