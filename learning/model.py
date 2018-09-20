@@ -9,7 +9,7 @@ import sys
 import random
 import collections
 
-from learning.utils import striphtml
+from learning.utils import striphtml, split_train_validation_data, f1_score
 
 class UnknownModelException(Exception):
     pass
@@ -122,7 +122,7 @@ class Categorizer(object):
     #  model.load_weights(sys.argv[1])
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
-                    metrics=['accuracy'])
+                    metrics=['accuracy', f1_score])
     print("Labels: ", self.categories)
     model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
               **{'epochs': self.epochs, **model_args})
@@ -166,11 +166,6 @@ def load_model(model_path, *vargs, **dargs):
     model_seg = model_path.split('/')
     return Categorizer(*vargs, model_path='/'.join(model_seg[:-1]), model_name=model_seg[-1], **dargs)
 
-def split_train_validation_data(split, x_data, y_data):
-  limit_train  = (int)(len(x_data) * split)
-  return x_data[:limit_train], y_data[:limit_train], \
-         x_data[limit_train:], y_data[limit_train:]
-
 
 def encode_n_hot_vectors(y_data, categories=None):
   categories = categories or list(set(c for y in y_data for c in y))
@@ -208,16 +203,14 @@ def filter_article_category_locations(data):
 
 def train_and_store_model(input_file, output, new_doc2vec=False):
   input_folder = os.path.dirname(input_file)
+  categories = open(input_folder + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   data = json.load(open(input_file, 'r', encoding='utf-8'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
-  # articles = [(a['text'], [a['top_category']]) for a in data]
-
   random.shuffle(articles)
-  
-  categories = open('data/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
+
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
-  articles = filter_articles_category_quantity(articles, 100)
+  articles = list(filter_articles_category_quantity(articles, 1))
 
   random.shuffle(articles)
   x_data, y_data = zip(*articles)
@@ -239,8 +232,8 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categorizer.save_model(model_path + '/' + output_file)
 
   ## Evaluate model ##
-  # categorizer = Categorizer(model_path, output_file)
-  # categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
+  categorizer = Categorizer(model_path, output_file)
+  categorizer.evaluate_categorizer(x_data[-10000:], y_data[-10000:])
 
 if __name__ == '__main__':
     train_and_store_model('learning/data/articles_all_categories.json', 'learning/trained-models/lstm-multi-categorizer-larger.model')
