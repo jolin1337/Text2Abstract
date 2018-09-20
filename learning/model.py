@@ -9,7 +9,7 @@ import sys
 import random
 import collections
 
-from learning.utils import striphtml
+from learning.utils import striphtml, split_train_validation_data, f1_score
 
 class UnknownModelException(Exception):
     pass
@@ -122,7 +122,7 @@ class Categorizer(object):
     #  model.load_weights(sys.argv[1])
     model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
-                    metrics=['accuracy'])
+                    metrics=['accuracy', f1_score])
     print("Labels: ", self.categories)
     model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
               **{'epochs': self.epochs, **model_args})
@@ -164,11 +164,6 @@ class Categorizer(object):
 def load_model(model_path, *vargs, **dargs):
     model_seg = model_path.split('/')
     return Categorizer(*vargs, model_path='/'.join(model_seg[:-1]), model_name=model_seg[-1], **dargs)
-
-def split_train_validation_data(split, x_data, y_data):
-  limit_train  = (int)(len(x_data) * split)
-  return x_data[:limit_train], y_data[:limit_train], \
-         x_data[limit_train:], y_data[limit_train:]
 
 
 def encode_n_hot_vectors(y_data, categories=None):
@@ -222,10 +217,10 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   # all_categories = [
   #   "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
   # ]
-  categories = open('data/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
+  categories = open(os.path.dirname(input_file) + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
-  articles = filter_articles_category_quantity(articles, 100)
+  articles = list(filter_articles_category_quantity(articles, 1))
 
   random.shuffle(articles)
   x_data, y_data = zip(*articles)
