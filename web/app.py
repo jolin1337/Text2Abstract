@@ -1,4 +1,3 @@
-#/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from flask import Flask, request, render_template, Response
@@ -6,14 +5,16 @@ from flask_cors import CORS
 import os
 import json
 
+import polyglot.text
+from keras.models import model_from_json
+
 import learning.model as model
 from learning.mm_services import content_service
 from learning.utils import striphtml
-from keras.models import model_from_json
 
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-model_path = os.environ.get('MODEL_PATH') or '.'
+model_path = os.environ.get('MODEL_PATH')
 categorizer = model.load_model(model_path + '/lstm-multi-categorizer-larger.model', deterministic=True)
 
 class AppException(Exception):
@@ -29,9 +30,8 @@ class CategorizingArticleException(AppException):
   def __init__(self, *argv, **argd):
     super().__init__(*argv, **argd)
   def to_dict(self):
-    super_dict = super().to_dict()
     return {
-      **super_dict,
+      **super().to_dict(),
       "error": "Categorizing article"
     }
 
@@ -42,14 +42,23 @@ def create_response(content, status, mimetype="application/json"):
   return response
 
 def categorize_text(text):
-  prediction = categorizer.categorize_text([text])[0]
+  p_entities = polyglot.text.Text(text).entities
+  p_texts = model.replace_entities([text])
+  prediction = categorizer.categorize_text(p_texts)[0]
   categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]
   categories.sort(key=lambda c: c['category_name'])
   category = max(categories, key=lambda c: c['category_probability'])
   return {
     'category': category,
     'categoreis': prediction,
-    'text': striphtml(text)
+    # 'text': text,
+    'entities': [{
+      'tag': ent.tag,
+      'words': ent,
+      'start_word_index': ent.start,
+      'end_word_index': ent.end
+    } for ent in p_entities],
+    'classified_text': striphtml(text)
   }
 
 @app.route('/categorize-by-uuid')
@@ -72,15 +81,6 @@ def categorize():
     **categorize_text(text)
   }), 200)
 
-@app.route('/ping', methods=['GET'])
-def ping():
-    """Determine if the container is working and healthy. In this sample container, we declare
-    it healthy if we can load the model successfully."""
-    # You can insert a health check here
-
-    status = 200 if health else 404
-    return flask.Response(response='\n', status=status, mimetype='application/json')
-
 @app.errorhandler(AppException)
 def handle_invalid_usage(error):
   print(json.dumps(error.to_dict()))
@@ -88,4 +88,4 @@ def handle_invalid_usage(error):
                          status=error.status_code)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=os.environ.get('PORT', 5000))
+    app.run()

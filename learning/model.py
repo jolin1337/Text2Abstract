@@ -208,13 +208,13 @@ def replace_entities(data):
   from polyglot.downloader import downloader
   downloader.download('embeddings2.sv')
   downloader.download('ner2.sv')
-  for x, y in data:
+  for x in data:
     text = polyglot.text.Text(x, hint_language_code='sv')
     entity_idx = [i for ent in text.entities for i in range(ent.start, ent.end)]
     words = np.array(list(text.words))
     words[entity_idx] = [ent.tag for ent in text.entities for i in range(ent.start, ent.end)]
     x = ' '.join(words)
-    yield x, y
+    yield x
 
 def train_and_store_model(input_file, output, new_doc2vec=False):
   data = json.load(open(input_file, 'r'))['articles']
@@ -236,11 +236,11 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categories = open(os.path.dirname(input_file) + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
-  articles = filter_articles_category_quantity(articles, 1)
-  articles = list(replace_entities(articles))
+  articles = list(filter_articles_category_quantity(articles, 1))
 
   random.shuffle(articles)
   x_data, y_data = zip(*articles)
+  x_data = list(replace_entities(x_data))
 
   print("Train model")
   ## Train model ##
