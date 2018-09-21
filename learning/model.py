@@ -210,6 +210,9 @@ def replace_entities(data):
   downloader.download('ner2.sv')
   for x in data:
     text = polyglot.text.Text(x, hint_language_code='sv')
+    # To filter away all words except entities use these lines
+    # yield ' '.join([e for ent in text.entities for e in ent])
+    # continue
     entity_idx = [i for ent in text.entities for i in range(ent.start, ent.end)]
     words = np.array(list(text.words))
     words[entity_idx] = [ent.tag for ent in text.entities for i in range(ent.start, ent.end)]
@@ -219,20 +222,6 @@ def replace_entities(data):
 def train_and_store_model(input_file, output, new_doc2vec=False):
   data = json.load(open(input_file, 'r'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
-  # articles = [(a['text'], [a['top_category']]) for a in data]
-  # top_categories = [
-  #   'Kultur','Släkt o vänner','Ekonomi',
-  #   'Nostalgi','Mat',
-  #   'Nöje','Trafik','Sport',
-  #   'Inrikes','Fritid','Resor',
-  #   'Bostad',
-  #   'Utrikes','Motor','Opinion',
-  #   'Blåljus','Näringsliv',
-    #'Allmänt'
-  # ]
-  # all_categories = [
-  #   "Mat","Böcker","Innebandy","Ishockey","Minnesord","Fotboll","Sport","Blåljus","Längdskidor","Motor","Nöje","Hockeyallsvenskan","SHL","Ledare","Bandy","Utrikes","TV", "Brott","Konsument","Skidsport","Musik","Div 1","Konst","Trafik","Kultur","Släkt o vänner","Bostad","Inrikes","Nostalgi","Allsvenskan","Debatt","Bränder","Insändare","Opinion","Ekonomi","Teater","Näringsliv","Film","Olyckor","Fira o Uppmärksamma"
-  # ]
   categories = open(os.path.dirname(input_file) + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
