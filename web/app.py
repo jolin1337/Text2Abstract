@@ -38,7 +38,7 @@ class CategorizingArticleException(AppException):
 def create_response(content, status, mimetype="application/json"):
   response = Response(response=str(content),
                       status=status, mimetype=mimetype)
-  response.headers["Content-Type"] = "application/json"
+  response.headers["Content-Type"] = mimetype
   return response
 
 def categorize_text(text):
@@ -81,6 +81,22 @@ def categorize():
     **categorize_text(text)
   }), 200)
 
+@app.route('/ping', methods=['GET'])
+def ping():
+    """Determine if the container is working and healthy. In this sample container, we declare
+    it healthy if we can load the model successfully."""
+    # You can insert a health check here
+    health = True
+    status = 200 if health else 404
+    return Response(response='\n', status=status, mimetype='application/json')
+
+@app.route('/invocations', methods=['POST'])
+def transformation():
+    text = request.data.decode('utf-8')
+    return create_response(json.dumps({
+        **categorize_text(text)
+    }), 200)
+
 @app.errorhandler(AppException)
 def handle_invalid_usage(error):
   print(json.dumps(error.to_dict()))
@@ -88,4 +104,4 @@ def handle_invalid_usage(error):
                          status=error.status_code)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=os.environ.get('PORT', 8080))

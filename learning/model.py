@@ -67,7 +67,7 @@ class Categorizer(object):
     if model_name is not None:
       self.model = self.load_model(model_path + '/' + model_name)
       self.categories = self.load_model_json(model_path + '/' + model_name)['categories']
-      print("Loaded model with %s categories" % ",".join(self.categories))
+      # print("Loaded model with %s categories" % ",".join(self.categories))
     else:
         self.model = None
     self.timestep = 20
@@ -140,7 +140,7 @@ class Categorizer(object):
     print({name: val for name, val in zip(self.model.metrics_names, evaluation)})
 
   def load_model_json(self, model_path):
-    f = open(model_path + '.json', 'r')
+    f = open(model_path + '.json', 'r', encoding='utf-8')
     model_json_str = f.read()
     f.close()
     return json.loads(model_json_str)
@@ -159,6 +159,7 @@ class Categorizer(object):
     model_json['categories'] = self.categories
     json.dump(model_json, open(path + '.json', 'w'))
     self.model.save_weights(path + '.h5')
+    self.doc2vec.save_model(os.path.dirname(path) + '/doc2vec_MM.model')
 
 
 def load_model(model_path, *vargs, **dargs):
@@ -220,9 +221,11 @@ def replace_entities(data):
     yield x
 
 def train_and_store_model(input_file, output, new_doc2vec=False):
-  data = json.load(open(input_file, 'r'))['articles']
+  input_folder = os.path.dirname(input_file)
+  categories = open(input_folder + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
+  data = json.load(open(input_file, 'r', encoding='utf-8'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
-  categories = open(os.path.dirname(input_file) + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
+  
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
   articles = list(filter_articles_category_quantity(articles, 1))

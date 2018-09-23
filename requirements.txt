@@ -1,12 +1,13 @@
 flask
 flask_cors
+gunicorn
 keras
 gensim
 psycopg2
 numpy
 tensorflow
-
 polyglot
 pyicu
 pycld2
 morefessor
+gevent
