@@ -210,13 +210,13 @@ def replace_entities(data):
   downloader.download('embeddings2.sv')
   downloader.download('ner2.sv')
   for x in data:
-    text = polyglot.text.Text(x, hint_language_code='sv')
+    wrapped_text = polyglot.text.Text(x, hint_language_code='sv')
     # To filter away all words except entities use these lines
     # yield ' '.join([e for ent in text.entities for e in ent])
     # continue
-    entity_idx = [i for ent in text.entities for i in range(ent.start, ent.end)]
-    words = np.array(list(text.words))
-    words[entity_idx] = [ent.tag for ent in text.entities for i in range(ent.start, ent.end)]
+    entity_idx = [i for ent in wrapped_text.entities for i in range(ent.start, ent.end)]
+    words = np.array(list(wrapped_text.words))
+    words[entity_idx] = [ent.tag for ent in wrapped_text.entities for i in range(ent.start, ent.end)]
     x = ' '.join(words)
     yield x
 
@@ -225,7 +225,7 @@ def train_and_store_model(input_file, output, new_doc2vec=False):
   categories = open(input_folder + '/one_year_categories.txt', 'r', encoding='utf-8').read().split('\n')
   data = json.load(open(input_file, 'r', encoding='utf-8'))['articles']
   articles = [(a['text'], a['categories']) for a in data]
-  
+
   articles = filter_articles(articles, categories)
   # articles = filter_article_category_locations(articles)
   articles = list(filter_articles_category_quantity(articles, 1))

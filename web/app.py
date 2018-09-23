@@ -42,9 +42,9 @@ def create_response(content, status, mimetype="application/json"):
   return response
 
 def categorize_text(text):
-  p_entities = polyglot.text.Text(text).entities
-  p_texts = model.replace_entities([text])
-  prediction = categorizer.categorize_text(p_texts)[0]
+  entities = polyglot.text.Text(text).entities
+  texts = model.replace_entities([text])
+  prediction = categorizer.categorize_text(texts)[0]
   categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]
   categories.sort(key=lambda c: c['category_name'])
   category = max(categories, key=lambda c: c['category_probability'])
@@ -57,7 +57,7 @@ def categorize_text(text):
       'words': ent,
       'start_word_index': ent.start,
       'end_word_index': ent.end
-    } for ent in p_entities],
+    } for ent in entities],
     'classified_text': striphtml(text)
   }
 
