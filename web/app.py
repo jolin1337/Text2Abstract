@@ -38,7 +38,7 @@ class CategorizingArticleException(AppException):
 def create_response(content, status, mimetype="application/json"):
   response = Response(response=str(content),
                       status=status, mimetype=mimetype)
-  response.headers["Content-Type"] = "application/json"
+  response.headers["Content-Type"] = mimetype
   return response
 
 def categorize_text(text):
@@ -77,9 +77,16 @@ def ping():
     """Determine if the container is working and healthy. In this sample container, we declare
     it healthy if we can load the model successfully."""
     # You can insert a health check here
-
+    health = True
     status = 200 if health else 404
-    return flask.Response(response='\n', status=status, mimetype='application/json')
+    return Response(response='\n', status=status, mimetype='application/json')
+
+@app.route('/invocations', methods=['POST'])
+def transformation():
+    text = request.data.decode('utf-8')
+    return create_response(json.dumps({
+        **categorize_text(text)
+    }), 200)
 
 @app.errorhandler(AppException)
 def handle_invalid_usage(error):
@@ -88,4 +95,4 @@ def handle_invalid_usage(error):
                          status=error.status_code)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=os.environ.get('PORT', 8080))
