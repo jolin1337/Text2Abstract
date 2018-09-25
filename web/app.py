@@ -11,11 +11,12 @@ from keras.models import model_from_json
 import learning.model as model
 from learning.mm_services import content_service
 from learning.utils import striphtml
+from learning import config
 
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-model_path = os.environ.get('MODEL_PATH')
-categorizer = model.load_model(model_path + '/lstm-multi-categorizer-larger.model', deterministic=True)
+model_file = config.model['categorization_model']
+categorizer = model.Categorizer(model_file, deterministic=True)
 
 class AppException(Exception):
   def __init__(self, message, status_code):
@@ -43,7 +44,9 @@ def create_response(content, status, mimetype="application/json"):
 
 def categorize_text(text):
   entities = polyglot.text.Text(text).entities
-  texts = model.replace_entities([text])
+  texts = [text]
+  if config.model['categorizer_params']['use_ner']:
+    texts = model.replace_entities(texts)
   prediction = categorizer.categorize_text(texts)[0]
   categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]
   categories.sort(key=lambda c: c['category_name'])

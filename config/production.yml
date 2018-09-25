@@ -1,0 +1,11 @@
+model:
+  path: '/opt/ml/model/'
+  doc2vec_model: 'doc2vec_MM.model'
+  categorization_model: 'lstm-multi-categorizer-larger.model'
+  model_checkpoint: False
+  categorization_params:
+    use_ner: True
+data:
+  path: '/opt/ml/input/data/training/'
+  articles: 'articles_all_categories.json'
+  target_categories: 'one_year_categories.txt'
