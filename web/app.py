@@ -1,4 +1,3 @@
-#/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from flask import Flask, request, render_template, Response
@@ -6,15 +5,18 @@ from flask_cors import CORS
 import os
 import json
 
+import polyglot.text
+from keras.models import model_from_json
+
 import learning.model as model
 from learning.mm_services import content_service
 from learning.utils import striphtml
-from keras.models import model_from_json
+from learning import config
 
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-model_path = os.environ.get('MODEL_PATH') or '.'
-categorizer = model.load_model(model_path + '/lstm-multi-categorizer-larger.model', deterministic=True)
+model_file = config.model['categorization_model']
+categorizer = model.Categorizer(model_file, deterministic=True)
 
 class AppException(Exception):
   def __init__(self, message, status_code):
@@ -29,9 +31,8 @@ class CategorizingArticleException(AppException):
   def __init__(self, *argv, **argd):
     super().__init__(*argv, **argd)
   def to_dict(self):
-    super_dict = super().to_dict()
     return {
-      **super_dict,
+      **super().to_dict(),
       "error": "Categorizing article"
     }
 
@@ -42,14 +43,25 @@ def create_response(content, status, mimetype="application/json"):
   return response
 
 def categorize_text(text):
-  prediction = categorizer.categorize_text([text])[0]
+  entities = polyglot.text.Text(text).entities
+  texts = [text]
+  if config.model['categorizer_params']['use_ner']:
+    texts = model.replace_entities(texts)
+  prediction = categorizer.categorize_text(texts)[0]
   categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]
   categories.sort(key=lambda c: c['category_name'])
   category = max(categories, key=lambda c: c['category_probability'])
   return {
     'category': category,
     'categoreis': prediction,
-    'text': striphtml(text)
+    # 'text': text,
+    'entities': [{
+      'tag': ent.tag,
+      'words': ent,
+      'start_word_index': ent.start,
+      'end_word_index': ent.end
+    } for ent in entities],
+    'classified_text': striphtml(text)
   }
 
 @app.route('/categorize-by-uuid')
