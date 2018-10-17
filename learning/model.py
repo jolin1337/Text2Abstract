@@ -12,6 +12,10 @@ import collections
 from learning.utils import striphtml, split_train_validation_data, f1_score
 from learning import config
 
+def log(*text):
+  if config.verbose:
+    print(*text)
+
 class UnknownModelException(Exception):
     pass
 
@@ -68,7 +72,7 @@ class Categorizer(object):
         if model_name is not None:
             self.model = self.load_model(config.model['path'] + '/' + model_name)
             self.categories = self.load_model_json(config.model['path'] + '/' + model_name)['categories']
-            # print("Loaded model with %s categories" % ",".join(self.categories))
+            # log("Loaded model with %s categories" % ",".join(self.categories))
         else:
             self.model = None
         self.timestep = 20
@@ -124,7 +128,7 @@ class Categorizer(object):
       model.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
                     metrics=['accuracy', f1_score])
-      print("Labels: ", self.categories)
+      log("Labels: ", self.categories)
       model.fit([x_train], [y_train], validation_data=([x_val], [y_val]),
                  **{'epochs': self.epochs, **model_args})
       return model
@@ -139,7 +143,7 @@ class Categorizer(object):
         evaluation = self.model.evaluate([x_data_processed], [y_data_one_hot])
         # y_data_predict = self.model.predict_proba([x_data_processed])[0]
         # sklearn.metrics.confusion_matrix(y_data_one_hot, y_data_predict)
-        print({name: val for name, val in zip(self.model.metrics_names, evaluation)})
+        log({name: val for name, val in zip(self.model.metrics_names, evaluation)})
 
     def load_model_json(self, model_path):
         f = open(model_path + '.json', 'r', encoding='utf-8')
@@ -227,11 +231,20 @@ def train_and_store_model(input_file, output_file, new_doc2vec=False):
 
     random.shuffle(articles)
     x_data, y_data = zip(*articles)
+    log("Numer of articles:", len(x_data))
 
-    if config.model['categorizer_params']['use_ner']:
+    if config.model['categorization_params']['use_ner']:
       x_data = list(replace_entities(x_data))
+      nr_replaced_orgs = sum([text.count('ORGANISATION') for text in x_data])
+      nr_replaced_locs = sum([text.count('LOCATION') for text in x_data])
+      nr_replaced_pers = sum([text.count('PERSON') for text in x_data])
+      nr_replaced_entities = nr_replaced_orgs + nr_replaced_locs + nr_replaced_pers
+      log("Number of replaced entities:", nr_replaced_entities)
+      log("  Persons:      ", nr_replaced_pers)
+      log("  Organizations:", nr_replaced_pers)
+      log("  Locations:    ", nr_replaced_pers)
 
-    print("Train model")
+    log("Train model")
     ## Train model ##
     if new_doc2vec:
         doc2vec = Doc2vecModel()

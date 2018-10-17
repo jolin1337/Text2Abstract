@@ -1,11 +1,13 @@
 model:
-  path: '/opt/ml/model/'
+  path: 'learning/trained-models/'
   doc2vec_model: 'doc2vec_MM.model'
   categorization_model: 'lstm-multi-categorizer-larger.model'
-  model_checkpoint: False
+  model_checkpoint: 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5'
   categorization_params:
     use_ner: True
 data:
-  path: '/opt/ml/input/data/training/'
+  path: 'learning/data/'
   articles: 'articles_all_categories.json'
   target_categories: 'one_year_categories.txt'
+
+verbose: True
