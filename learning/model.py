@@ -176,6 +176,10 @@ def encode_n_hot_vectors(y_data, categories=None):
 
 
 def filter_articles(data, categories):
+    available_category_counts = collections.Counter([cat for x, y in data for cat in y if cat in categories])
+    print(available_category_counts)
+    min_category_count = available_category_counts.most_common()[-1][1]
+    current_category_counts = {cat: 0 for cat in categories}
     for x, y in data:
         x = x.strip()
         if x == '':
@@ -183,7 +187,12 @@ def filter_articles(data, categories):
         y = [c for c in y if c in categories]
         if not y:
             continue
-        yield x, y
+        for cat in y:
+            current_category_counts[cat] += 1
+            if current_category_counts[cat] > min_category_count:
+              break
+        else:
+            yield x, y
 
 def filter_articles_category_quantity(data, threshold):
     data = list(data)
