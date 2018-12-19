@@ -20,6 +20,9 @@ def split_train_validation_data(split, x_data, y_data):
          x_data[limit_train:], y_data[limit_train:]
 
 
+def offset_binary_accuracy(y_true, y_pred, offset=0.2):
+    return K.mean(K.equal(y_true, K.round(K.max([1.0] * y_pred.shape[-1], y_pred))), axis=-1)
+
 def f1_score(y_true, y_pred):
     def recall(y_true, y_pred):
         """Recall metric.

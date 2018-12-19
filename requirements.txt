@@ -9,5 +9,6 @@ tensorflow
 polyglot
 pyicu
 pycld2
-morefessor
 gevent
+sklearn
+pandas
