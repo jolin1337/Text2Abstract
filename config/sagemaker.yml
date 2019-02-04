@@ -1,6 +1,7 @@
 model:
   path: '/opt/ml/model/'
   doc2vec_model: 'doc2vec_MM.model'
+  train_doc2vec_model: True
   categorization_model: 'lstm-multi-categorizer-larger.model'
   model_checkpoint: False
   categorization_params:

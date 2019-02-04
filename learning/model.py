@@ -14,6 +14,10 @@ import collections
 from learning.utils import striphtml, split_train_validation_data, f1_score, offset_binary_accuracy
 from learning import config
 
+
+pandas.set_option('display.expand_frame_repr', False)
+
+
 def log(*text):
   if config.verbose:
     print(*text)
@@ -81,7 +85,7 @@ class Categorizer(object):
         else:
             self.model = None
         self.timestep = 20
-        self.n_layers = 6
+        self.n_layers = 10
         self.epochs = 15
 
     def preprocess_text(self, texts):
@@ -157,10 +161,17 @@ class Categorizer(object):
         log("Accuracy %f" % (true_positives / total_predictions,))
 
         # Compute confusion matrix of validation data
-        true_values = [self.categories[y.argmax()] for y in y_data_one_hot]
-        predicted_values = [self.categories[y.argmax()] for y in np.array(prediction)]
-        conf_mat = sklearn.metrics.confusion_matrix(true_values, predicted_values)
-        log(pandas.DataFrame(conf_mat, columns=self.categories, index=self.categories))
+        predicted_values = [[1 if np.argmax(x) == i else 0 for i, v in enumerate(x)] for x in prediction]
+        true_values = [[1 if np.argmax(x) == i else 0 for i, v in enumerate(x)] for x in y_data_one_hot]
+        confusion_matrix = np.zeros((len(true_values[0]), len(true_values[0])))
+        for i in range(len(confusion_matrix)):
+            for j in range(len(confusion_matrix)):
+                confusion_matrix[i][j] = len([1 for k, y in enumerate(true_values) if np.argmax(predicted_values[k]) == i and y[j] == 1])
+        pandas.set_option('display.expand_frame_repr', False)
+        cf = pandas.DataFrame(confusion_matrix, index=self.categories, columns=self.categories)
+        cf.loc['sum'] = cf.sum(numeric_only=True, axis=0)
+        cf['sum'] = cf.sum(numeric_only=True, axis=1)
+        log(cf)
 
     def load_model_json(self, model_path):
         f = open(model_path + '.json', 'r', encoding='utf-8')
@@ -188,27 +199,25 @@ def encode_n_hot_vectors(y_data, categories=None):
     categories = categories or list(set(c for y in y_data for c in y))
     y_data_one_hot = np.zeros((len(y_data), len(categories)))
     for i, y in enumerate(y_data_one_hot):
-        if 1 not in y:
-            y[y_data[i]] = 1
+        y[y_data[i]] = 1
     return y_data_one_hot
 
 
 def filter_articles(data, categories):
     available_category_counts = collections.Counter([cat for x, y in data for cat in y if cat in categories])
-    print(available_category_counts)
     min_category_count = available_category_counts.most_common()[-1][1]
     current_category_counts = {cat: 0 for cat in categories}
     for x, y in data:
         x = x.strip()
         if x == '':
             continue
-        y = [c for c in y if c in categories]
+        y = [c for c in y if c in categories and current_category_counts[c] < min_category_count]
         if not y:
             continue
         for cat in y:
             current_category_counts[cat] += 1
-            if current_category_counts[cat] > min_category_count:
-              break
+            #if current_category_counts[cat] > min_category_count:
+            #  break
         else:
             yield x, y
 
@@ -224,7 +233,6 @@ def filter_articles_category_quantity(data, threshold):
 
 def filter_article_quantity_of_categories(data, max_articles):
     available_category_counts = collections.Counter([cat for x, y in data for cat in y])
-    print(available_category_counts)
     min_category_count = available_category_counts.most_common()[-1][1]
     current_category_counts = {cat: 0 for cat in available_category_counts.keys()}
     for x, y in data:
@@ -263,7 +271,7 @@ def replace_entities(data):
     x = ' '.join(words)
     yield x
 
-def train_and_store_model(input_file, output_file, new_doc2vec=False):
+def train_and_store_model(input_file, output_file):
     data = json.load(open(config.data['path'] + input_file, 'r', encoding='utf-8'))['articles']
     articles = [(a['text'], a['categories']) for a in data]
 
@@ -271,14 +279,16 @@ def train_and_store_model(input_file, output_file, new_doc2vec=False):
         categories = open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')
         articles = list(filter_articles(articles, categories))
     # articles = filter_article_category_locations(articles)
-    articles = list(filter_article_quantity_of_categories(articles, 2000))
+    articles = list(filter_article_quantity_of_categories(articles, 3500))
     articles = list(filter_articles_category_quantity(articles, 1))
 
     random.shuffle(articles)
+    log("Numer of articles:", len(articles))
+    available_category_counts = collections.Counter([cat for text, categories in articles for cat in categories])
+    print(available_category_counts)
     validation_split = int(0.2 * len(articles))
     x_val_data, y_val_data = zip(*articles[:validation_split])
     x_data, y_data = zip(*articles[validation_split:])
-    log("Numer of articles:", len(x_data))
 
     if config.model['categorization_params']['use_ner']:
       x_data = list(replace_entities(x_data))
@@ -293,7 +303,7 @@ def train_and_store_model(input_file, output_file, new_doc2vec=False):
 
     log("Train model")
     ## Train model ##
-    if new_doc2vec:
+    if config.model.get('train_doc2vec_model', False):
         doc2vec = Doc2vecModel()
         doc2vec.train(x_data, y_data)
         doc2vec_file = config.get_full_model('doc2vec_model')
@@ -316,4 +326,4 @@ def train_and_store_model(input_file, output_file, new_doc2vec=False):
     categorizer.evaluate_categorizer(x_val_data, y_val_data)
 
 if __name__ == '__main__':
-    train_and_store_model(config.data['articles'], config.model['categorization_model'], new_doc2vec=False)
+    train_and_store_model(config.data['articles'], config.model['categorization_model'])

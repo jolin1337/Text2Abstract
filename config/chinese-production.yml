@@ -1,6 +1,7 @@
 model:
   path: 'learning/trained-models/'
   doc2vec_model: 'doc2vec_MM_chinese.model'
+  train_doc2vec_model: False
   categorization_model: 'lstm-multi-categorizer-larger-chinese.model'
   model_checkpoint: 'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}-chinese.hdf5'
   categorization_params:
@@ -8,6 +9,6 @@ model:
 data:
   path: 'learning/data/'
   articles: 'thucnews_all_articles.json'
-  target_categories: null # 'research_top_categories.txt' #'one_year_categories.txt'
+  target_categories: 'research_top_categories_thucnews.txt'
 
 verbose: True
