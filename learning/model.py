@@ -190,7 +190,7 @@ class Categorizer(object):
     def save_model(self, path):
         model_json = json.loads(self.model.to_json())
         model_json['categories'] = self.categories
-        json.dump(model_json, open(path + '.json', 'w'))
+        json.dump(model_json, open(path + '.json', 'w', encoding='utf-8'), ensure_ascii=False)
         self.model.save_weights(path + '.h5')
         self.doc2vec.save_model(os.path.dirname(path) + '/' + config.model['doc2vec_model'])
 
@@ -273,10 +273,11 @@ def replace_entities(data):
 
 def train_and_store_model(input_file, output_file):
     data = json.load(open(config.data['path'] + input_file, 'r', encoding='utf-8'))['articles']
-    articles = [(a['text'], a['categories']) for a in data]
+    articles = [(a['text'], [c.encode('utf-8') for c in a['categories']]) for a in data]
 
     if config.data.get('target_categories', False):
-        categories = open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')
+        categories = [c.encode('utf-8')
+                      for c in open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')]
         articles = list(filter_articles(articles, categories))
     # articles = filter_article_category_locations(articles)
     articles = list(filter_article_quantity_of_categories(articles, 3500))

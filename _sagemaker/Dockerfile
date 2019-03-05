@@ -39,12 +39,14 @@ ENV MODEL_PATH=/opt/ml/model
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
 ENV PATH="/opt/program:${PATH}"
+ENV ENV=sagemaker
 RUN rm requirements.txt get-pip.py
 
 # Set up the program in the image
 COPY web /opt/program/web
 COPY learning /opt/program/learning
-COPY sagemaker/sagemaker.py /opt/program/sagemaker.py
+COPY config /opt/program/config
+COPY _sagemaker/sagemaker.py /opt/program/sagemaker.py
 
 WORKDIR /opt/program
 

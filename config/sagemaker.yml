@@ -5,10 +5,10 @@ model:
   categorization_model: 'lstm-multi-categorizer-larger.model'
   model_checkpoint: False
   categorization_params:
-    use_ner: True
+    use_ner: False
 data:
   path: '/opt/ml/input/data/training/'
-  articles: 'articles_all_categories.json'
-  target_categories: 'one_year_categories.txt'
+  articles: 'new_metadata_articles.json'
+  target_categories: 'new_top_categories.txt'
 
 verbose: True
