@@ -44,7 +44,7 @@ class Doc2vecModel(object):
         def to_labeled_sentence(data, c_data):
             for i, x in enumerate(data):
                 if c_data:
-                    yield gensim.models.doc2vec.LabeledSentence(x, [i] + c_data[i])
+                    yield gensim.models.doc2vec.LabeledSentence(x, c_data[i])
                 else:
                     yield gensim.models.doc2vec.LabeledSentence(x, [i])
         self.model = gensim.models.Doc2Vec(vector_size=vector_size,
@@ -124,7 +124,7 @@ class Categorizer(object):
       self.model = model
       return model
 
-    def train_categorizer(self, x_data, y_data, split_train_val=0.8, **model_args):
+    def train_categorizer(self, x_data, y_data, split_train_val=0.9, **model_args):
       self.categories = list(set(c for y in y_data for c in y))
       y_data = [[self.categories.index(c) for c in y] for y in y_data]
       y_data_one_hot = encode_n_hot_vectors(y_data)
@@ -280,14 +280,14 @@ def train_and_store_model(input_file, output_file):
                       for c in open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')]
         articles = list(filter_articles(articles, categories))
     # articles = filter_article_category_locations(articles)
-    articles = list(filter_article_quantity_of_categories(articles, 3500))
+    articles = list(filter_article_quantity_of_categories(articles, 1862))
     articles = list(filter_articles_category_quantity(articles, 1))
 
     random.shuffle(articles)
     log("Numer of articles:", len(articles))
     available_category_counts = collections.Counter([cat for text, categories in articles for cat in categories])
     print(available_category_counts)
-    validation_split = int(0.2 * len(articles))
+    validation_split = int(0.1 * len(articles))
     x_val_data, y_val_data = zip(*articles[:validation_split])
     x_data, y_data = zip(*articles[validation_split:])
 
