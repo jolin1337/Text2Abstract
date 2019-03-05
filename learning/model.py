@@ -189,7 +189,7 @@ class Categorizer(object):
 
     def save_model(self, path):
         model_json = json.loads(self.model.to_json())
-        model_json['categories'] = self.categories
+        model_json['categories'] = [c.decode('utf-8') for c in self.categories]
         json.dump(model_json, open(path + '.json', 'w', encoding='utf-8'), ensure_ascii=False)
         self.model.save_weights(path + '.h5')
         self.doc2vec.save_model(os.path.dirname(path) + '/' + config.model['doc2vec_model'])
