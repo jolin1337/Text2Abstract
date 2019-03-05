@@ -14,6 +14,8 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
          python3 \
          nginx \
+         git \
+         libicu-dev \
          ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 

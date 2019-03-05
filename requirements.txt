@@ -6,9 +6,9 @@ gensim
 psycopg2
 numpy
 tensorflow
-polyglot
 pyicu
 pycld2
 gevent
 sklearn
 pandas
+git+https://github.com/aboSamoor/polyglot.git@master
