@@ -26,7 +26,8 @@ class Categorizer(object):
         print("Preprocess text")
         document_texts = [keras.preprocessing.text.text_to_word_sequence(striphtml(text))
                       for text in texts]
-        for i, doc in enumerate(document_texts):
+        for doc in document_texts:
+            if not doc: continue
             if isinstance(self.vec_model, Doc2vecModel):
                 vectors = np.zeros([self.timestep, self.vec_model.vector_size()])
                 for i in range(self.timestep):
@@ -39,14 +40,10 @@ class Categorizer(object):
                     vectors[i] = vec
                 yield vectors
             elif isinstance(self.vec_model, Word2vecModel):
-                if len(doc) == 0:
-                    print("Length of doc", len(doc), i, len(document_texts), texts[i])
                 vec = self.vec_model.infer_vector(doc)
                 pad_length = max(0, self.timestep - len(doc))
                 if pad_length > 0:
                     pad_vector = np.zeros([pad_length,self.vec_model.vector_size()])
-                    if not vec.tolist():
-                        print("Pad vector empty!", self.vec_model.vector_size())
                     vec = np.append(vec, pad_vector, axis=0)
                 yield vec
 
@@ -78,6 +75,7 @@ class Categorizer(object):
       y_data = [[self.categories.index(c) for c in y] for y in y_data]
       y_data_one_hot = encode_n_hot_vectors(y_data)
       x_data_processed = list(self.preprocess_text(x_data))
+      print(x_data_processed[0])
       x_train, y_train, x_val, y_val = split_train_validation_data(split_train_val, x_data_processed, y_data_one_hot)
 
       log("Done preprocessing data")

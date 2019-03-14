@@ -78,7 +78,4 @@ class Word2vecModel(object):
         if self.model:
             return self.model.vector_size
         return None
-    def vector_shape(self):
-        if self.model:
-            return (self.model.vector_size,)
-        return None
+

@@ -20,7 +20,7 @@ class LSTMCategorizer(Categorizer):
     def construct_model(self, categories):
       num_classes = len(categories)
       ##### expected input data shape: (batch_size, timesteps, data_dim)
-      input_shape = (self.timestep, *self.vec_model.vector_shape())
+      input_shape = (self.timestep, self.vec_model.vector_size())
       model = keras.models.Sequential()
       model.add(keras.layers.LSTM(50,
                 input_shape=input_shape,
