@@ -9,10 +9,11 @@ import collections
 
 from learning.utils import split_train_validation_data
 from learning import config
-from learning.lstm_categorizer_model import LSTMCategorizer as Categorizer
+from learning.lstm_categorizer_model import LSTMCategorizer
+from learning.blstm_categorizer_model import BLSTMCategorizer
 from learning.doc2vec_model import Doc2vecModel
 from learning.word2vec_model import Word2vecModel
-from logger import log
+from learning.logger import log
 
 
 class UnknownModelException(Exception):
@@ -138,6 +139,11 @@ def train_and_store_model(input_file, output_file):
                                                      save_best_only=True, save_weights_only=True, period=5)
         tensorboard = keras.callbacks.TensorBoard(log_dir=config.model['path'] + '/Graph', histogram_freq=0, write_graph=True, write_images=True)
         callbacks = [checkpoint, tensorboard]
+
+    if config.model['categorization_model']['type'] == 'lstm':
+      Categorizer = LSTMCategorizer
+    else:
+      Categorizer = BLSTMCategorizer
     categorizer = Categorizer(vec)
     model = categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
     categorizer.save_model(config.model['path'] + output_file)

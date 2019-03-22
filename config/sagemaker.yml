@@ -6,6 +6,7 @@ model:
     name: 'doc2vec_MM.model'
   categorization_model:
     name: 'lstm-multi-categorizer-larger.model'
+    type: 'blstm'
     model_checkpoint: False #'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5'
     use_ner: False
 data:
