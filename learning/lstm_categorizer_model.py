@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from categorizer_model import Categorizer
+from learning.categorizer_model import Categorizer
 from learning import config
 import keras
 import numpy as np

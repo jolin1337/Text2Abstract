@@ -13,7 +13,7 @@ from learning.lstm_categorizer_model import LSTMCategorizer
 from learning.blstm_categorizer_model import BLSTMCategorizer
 from learning.doc2vec_model import Doc2vecModel
 from learning.word2vec_model import Word2vecModel
-from logger import log
+from learning.logger import log
 
 
 class UnknownModelException(Exception):

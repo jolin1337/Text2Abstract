@@ -2,10 +2,10 @@ import os
 import random
 import gensim
 import re
-import config
+from learning import config
 import jieba
 import numpy as np
-from logger import log
+from learning.logger import log
 
 def loadStopWords(filepath):
   stopwords = [line.strip() for line in open(filepath,'r',encoding="utf-8").readlines()]

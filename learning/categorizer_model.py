@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from logger import log
+from learning.logger import log
 import keras
 import numpy as np
 import pandas
@@ -23,7 +23,7 @@ class Categorizer(object):
         self.epochs = 15
 
     def preprocess_text(self, texts, labels):
-        print("Preprocess text")
+        log("Preprocess text")
         document_texts = [keras.preprocessing.text.text_to_word_sequence(striphtml(text))
                       for text in texts]
         for doc, label in zip(document_texts, labels):

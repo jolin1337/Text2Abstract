@@ -1,7 +1,7 @@
 import gensim
 import random
 import re
-import config
+from learning import config
 
 
 def loadStopWords(filepath):
