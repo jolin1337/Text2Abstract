@@ -24,10 +24,9 @@ def removeStopWords(sentence):
 
 
 class Word2vecModel(object):
-    def __init__(self, model=None, deterministic=False, document_length=100):
+    def __init__(self, model=None, deterministic=False):
         self.model = None
         self.deterministic = deterministic
-        self.document_length = document_length
         if deterministic:
             random.seed(0)
         if model is not None:
@@ -41,7 +40,7 @@ class Word2vecModel(object):
         self.model.save(model)
         return self
 
-    def train(self, data, c_data=None, vector_size=300, window=10):
+    def train(self, data, c_data=None, vector_size=1000, window=15):
         clean_text_re = '[，。：？“”！、（）《》’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+'
         fname = 'tmp_word2vec_data.txt'
         fout = open(fname, 'w', encoding='utf-8')
