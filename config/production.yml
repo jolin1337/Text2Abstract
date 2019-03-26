@@ -3,12 +3,11 @@ model:
   vec_model:
     train: True
     type: 'word2vec'
-    #name: 'gensim_models/word2vec_MM_new_category_tree.model'
-    name: 'gensim_models/doc2vec_MM_new_category_tree.model'
+    name: 'gensim_models/word2vec_MM_new_category_tree.model'
   categorization_model:
     name: 'lstm-multi-categorizer-new-category-tree.model'
     type: 'blstm'
-    model_checkpoint: False #'checkpoint.weights.e{epoch:02d}-loss{val_loss:.2f}-acc{val_acc:.2f}.hdf5'
+    model_checkpoint: False
     use_ner: False
 data:
   path: 'learning/data/'
