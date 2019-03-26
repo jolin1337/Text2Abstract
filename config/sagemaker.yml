@@ -11,6 +11,7 @@ model:
     use_ner: False
 data:
   path: '/opt/ml/input/data/training/'
+  stop_words: 'stop_words.txt'
   articles: 'new_metadata_articles.json'
   target_categories: 'new_top_categories.txt'
 
