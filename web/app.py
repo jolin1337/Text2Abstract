@@ -5,18 +5,26 @@ from flask_cors import CORS
 import os
 import json
 
-import polyglot.text
 from keras.models import model_from_json
 
 import learning.model as model
+from learning.categorizer_model import Categorizer
+from learning.word2vec_model import Word2vecModel
+from learning.doc2vec_model import Doc2vecModel
 from learning.mm_services import content_service
 from learning.utils import striphtml
 from learning import config
 
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-model_file = config.model['categorization_model']
-categorizer = model.Categorizer(model_file, deterministic=True)
+if config.model['vec_model']['type'] == 'doc2vec':
+    VecModel = Doc2vecModel
+else:
+    VecModel = Word2vecModel
+vec_file = config.model['path'] + config.model['vec_model']['name']
+model_file = config.model['path'] + config.model['categorization_model']['name']
+vec_model = VecModel(vec_file, deterministic=True)
+categorizer = Categorizer(vec_model, model_file)
 
 class AppException(Exception):
   def __init__(self, message, status_code):
@@ -43,9 +51,11 @@ def create_response(content, status, mimetype="application/json"):
   return response
 
 def categorize_text(text):
-  entities = polyglot.text.Text(text).entities
   texts = [text]
-  if config.model['categorizer_params']['use_ner']:
+  entities = []
+  if config.model['categorization_model']['use_ner']:
+    import polyglot.text
+    entities = polyglot.text.Text(text).entities
     texts = model.replace_entities(texts)
   prediction = categorizer.categorize_text(texts)[0]
   categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]

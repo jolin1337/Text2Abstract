@@ -14,6 +14,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
          python3 \
          nginx \
+         python-gevent python-gevent-websocket \
          git \
          libicu-dev \
          ca-certificates \

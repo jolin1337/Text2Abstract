@@ -47,8 +47,8 @@ class Categorizer(object):
     def categorize_text(self, text):
         if self.model == None:
             raise UnknownModelException()
-        processed_text = np.array(self.preprocess_text(text))
-        probas = self.model.predict([processed_text])
+        processed_text, _ = zip(*list(self.preprocess_text(text, [None] * len(text))))
+        probas = self.model.predict([np.array(processed_text)])
         return [{
             c: float(p)
             for c, p in zip(self.categories, list(proba))
