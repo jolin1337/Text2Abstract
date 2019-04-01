@@ -13,19 +13,21 @@ Navigate to the folder you want to have the project
 ```
 $ git clone https://github.com/jolin1337/Text2Abstract auto-categorizer
 $ cd auto-categorizer
-$ git checkout productified-version
 $ python -m venv ./venv
 $ ln -s venv/lib/python3.5/site-packages/learning learning
 $ python -m pip install -r requirements.txt
-$ wget https://drive.google.com/uc?export=download&confirm=no_antivirus&id=12ewf6e2JrElKJRTsfd8S_cSuj4kiQipZ
-$ tar -xvzf trained-models.tar.gz
 $ cp .env.sample .env
 ### Add SOLDR_TOKEN in .env file and do
 $ source .env
 ```
 
+## To fetch data run
+```
+$ python learning/mm_services/fetch_data.py
+```
+
 ## To train
-All training parameters are currently in the model file `learning/model.py`
+All training parameters are ported to the configuration file specified in the `config` folder
 ```
 $ python learning/model.py
 ```
@@ -41,3 +43,5 @@ $ ./build_and_push.sh sagemaker-auto-categorization
 # Then open notebook and train the model or create an endpoint starting jupyter:
 $ jupyter notebook
 ```
+
+## For more guides look in the notebooks found in the `notebooks` folder

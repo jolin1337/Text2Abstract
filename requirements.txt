@@ -11,6 +11,6 @@ tensorflow
 #gevent
 sklearn
 pandas
-gevent
 #git+https://github.com/aboSamoor/polyglot.git@master
 jieba
+timeloop

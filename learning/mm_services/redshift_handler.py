@@ -96,18 +96,18 @@ def run_file_query(file, *vargs, **dargs):
   return run_file_queries([file], *vargs, **dargs)[0]
 
 
-def insert_into(table_name, columns, data, chunkSize=0):
+def insert_into(table_name, data, chunkSize=0):
   if chunkSize <= 0:
     chunkSize = 1000  # int(min(1000, len(data) / 10))
+  columns = list(data[0].keys())
   for i in range(0, len(data), chunkSize):
     conn = redshift_connection()
     redshift_cur = conn.cursor()
 
     data_chunk = data[i:i + chunkSize]
-    data_tuple = [tuple(d[c] if isinstance(d[c], str)
-            else float(d[c])
-            for c in columns)
-            for d in data_chunk]
+    data_tuple = [tuple(d[c]
+                  for c in columns)
+                  for d in data_chunk]
     records_list_template = ','.join(['%s'] * len(data_tuple))
     column_string = ','.join(columns)
     insert_query = 'insert into ' + table_name
@@ -115,6 +115,17 @@ def insert_into(table_name, columns, data, chunkSize=0):
             records_list_template)
     redshift_cur.execute(insert_query, data_tuple)
 
+    conn.commit()
+    redshift_cur.close()
+    conn.close()
+
+def setup_table(table_name, columns):
+    conn = redshift_connection()
+    redshift_cur = conn.cursor()
+    redshift_cur.execute('CREATE TABLE IF NOT EXISTS %(table_name)s (%(columns)s)' % {
+      'table_name': table_name,
+      'columns': ','.join(cname + ' ' + ctype for cname, ctype in columns.items())
+    })
     conn.commit()
     redshift_cur.close()
     conn.close()

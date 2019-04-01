@@ -1,6 +1,7 @@
-import mm_services.redshift_handler as rh
+import learning.mm_services.redshift_handler as rh
+from learning.utils import striphtml
 import json
-from utils import striphtml
+from collections import defaultdict
 import traceback
 
 def getArticles(limit=500000, offset=0):
@@ -16,6 +17,7 @@ def getArticles(limit=500000, offset=0):
     SELECT article_uuid,
            body as text,
            headline as headline,
+           lead as lead,
            listagg('"' + categories.category_name + '"', ','::text) categories,
            listagg('"' + categories.category_hierarchical_id + '"', ','::text) category_ids,
            max(nr_of_usages) as nr_of_usages
@@ -23,21 +25,23 @@ def getArticles(limit=500000, offset=0):
     INNER JOIN cs_article_categories2 ON cs_articles.article_pk = cs_article_categories2.article_pk
     INNER JOIN categories ON categories.category_hierarchical_id = cs_article_categories2.category_hierarchical_id
     WHERE publish_at > '2018-10-01'::DATE AND text IS NOT NULL AND headline IS NOT NULL
-    GROUP BY 1,2,3
+    GROUP BY 1,2,3,4
     LIMIT %(limit)i
     OFFSET %(offset)i
   """ % {
     'limit': limit,
     'offset': offset
   })
-  categories = set()
+  categories = defaultdict(int)
   for i, article in enumerate(articles):
     try:
       article['text'] = striphtml(article['text'])
+      article['lead'] = striphtml(article['lead'])
       article['headline'] = striphtml(article['headline'])
       article['categories'] = list(set([cs for cs in article['categories'][1:-1].split('","')]))
       article['category_ids'] = list(set([cs for cs in article['category_ids'][1:-1].split('","')]))
-      categories.update(article['categories'])
+      for cat in article['categories']:
+        categories[cat] += 1
     except:
       traceback.print_exc()
       print("Error here: ", i, article)

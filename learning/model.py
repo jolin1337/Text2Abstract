@@ -38,6 +38,7 @@ def filter_articles(data, categories):
         else:
             yield x, y
 
+
 def filter_articles_category_quantity(data, threshold):
     data = list(data)
     categories = [c for x, y in data for c in y]
@@ -47,6 +48,7 @@ def filter_articles_category_quantity(data, threshold):
         if not y:
             continue
         yield x, y
+
 
 def filter_article_quantity_of_categories(data, max_articles):
     available_category_counts = collections.Counter([cat for x, y in data for cat in y])
@@ -87,6 +89,7 @@ def replace_entities(data):
     words[entity_idx] = [ent.tag for ent in wrapped_text.entities for i in range(ent.start, ent.end)]
     x = ' '.join(words)
     yield x
+
 
 def train_and_store_model(input_file, output_file):
     data = json.load(open(config.data['path'] + input_file, 'r', encoding='utf-8'))['articles']
@@ -152,6 +155,7 @@ def train_and_store_model(input_file, output_file):
     ## Evaluate model ##
     categorizer = Categorizer(None, config.model['path'] + output_file)
     categorizer.evaluate_categorizer(x_val_data, y_val_data)
+
 
 if __name__ == '__main__':
     train_and_store_model(config.data['articles'], config.model['categorization_model']['name'])

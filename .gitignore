@@ -1,5 +1,6 @@
 __pycache__
 *.pyc
+predictions/
 learning/data/*
 learning/trained-models/
 .cache/

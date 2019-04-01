@@ -2,11 +2,11 @@ import os
 import yaml
 
 env = os.environ.get('ENV', 'test')
-config = yaml.load(open("config/%s.yml" % (env, )))
-model = config['model']
-data = config['data']
+_config = yaml.load(open(os.path.abspath("config/%s.yml" % (env, ))))
+model = _config['model']
+data = _config['data']
 
-verbose = config.get('verbose', False)
+verbose = _config.get('verbose', False)
 
 def get_full_model(param):
     return model['path'] + model[param]
