@@ -91,8 +91,8 @@ def replace_entities(data):
     yield x
 
 
-def train_and_store_model(input_file, output_file):
-    data = json.load(open(config.data['path'] + input_file, 'r', encoding='utf-8'))['articles']
+def train_and_store_model(evaluate=False):
+    data = json.load(open(config.data['path'] + config.data['articles'], 'r', encoding='utf-8'))['articles']
     articles = [(a['text'], a['categories']) for a in data]
 
     if config.data.get('target_categories', False):
@@ -109,25 +109,25 @@ def train_and_store_model(input_file, output_file):
     x_val_data, y_val_data, x_data, y_data = split_train_validation_data(0.1, *zip(*articles))
 
     if config.model['categorization_model']['use_ner']:
-      x_data = list(replace_entities(x_data))
-      nr_replaced_orgs = sum([text.count('ORGANISATION') for text in x_data])
-      nr_replaced_locs = sum([text.count('LOCATION') for text in x_data])
-      nr_replaced_pers = sum([text.count('PERSON') for text in x_data])
-      nr_replaced_entities = nr_replaced_orgs + nr_replaced_locs + nr_replaced_pers
-      log("Number of replaced entities:", nr_replaced_entities)
-      log("  Persons:      ", nr_replaced_pers)
-      log("  Organizations:", nr_replaced_pers)
-      log("  Locations:    ", nr_replaced_pers)
+        x_data = list(replace_entities(x_data))
+        nr_replaced_orgs = sum([text.count('ORGANISATION') for text in x_data])
+        nr_replaced_locs = sum([text.count('LOCATION') for text in x_data])
+        nr_replaced_pers = sum([text.count('PERSON') for text in x_data])
+        nr_replaced_entities = nr_replaced_orgs + nr_replaced_locs + nr_replaced_pers
+        log("Number of replaced entities:", nr_replaced_entities)
+        log("  Persons:      ", nr_replaced_pers)
+        log("  Organizations:", nr_replaced_pers)
+        log("  Locations:    ", nr_replaced_pers)
 
     log("Train vec model")
     ## Train model ##
     vec = None
     random.seed(0)
     vec_file = config.model['path'] + config.model['vec_model']['name']
+    vecModel = Word2vecModel
     if config.model['vec_model']['type'] == 'doc2vec':
-      vecModel = Doc2vecModel
-    else:
-      vecModel = Word2vecModel
+        vecModel = Doc2vecModel
+
     if config.model['vec_model']['train']:
         vec = vecModel()
         vec.train(x_data, y_data)
@@ -144,17 +144,18 @@ def train_and_store_model(input_file, output_file):
         callbacks = [checkpoint, tensorboard]
 
     if config.model['categorization_model']['type'] == 'lstm':
-      Categorizer = LSTMCategorizer
+        Categorizer = LSTMCategorizer
     else:
-      Categorizer = BLSTMCategorizer
+        Categorizer = BLSTMCategorizer
     categorizer = Categorizer(vec)
     model = categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
-    categorizer.save_model(config.model['path'] + output_file)
+    categorizer.save_model(config.model['path'] + config.model['categorization_model']['name'])
 
-    log("Evaluate model")
-    ## Evaluate model ##
-    categorizer = Categorizer(None, config.model['path'] + output_file)
-    categorizer.evaluate_categorizer(x_val_data, y_val_data)
+    if evaluate:
+        log("Evaluate model")
+        ## Evaluate model ##
+        categorizer = Categorizer(None, config.model['path'] + output_file)
+        categorizer.evaluate_categorizer(x_val_data, y_val_data)
 
 
 if __name__ == '__main__':

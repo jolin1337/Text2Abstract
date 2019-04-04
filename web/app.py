@@ -147,7 +147,7 @@ def transformation():
         article_json = json.loads(article)
         # TODO: Add lead and maybe title to the text
         text = article_json['body']
-        categories = [c for c in article_json['categories2']]
+        categories = article_json['categories2']
         article_id = article_json['uuid']
     except:
         text = article
