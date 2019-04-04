@@ -12,6 +12,7 @@ model:
 data:
   path: '/opt/ml/input/data/training/'
   articles: 'new_metadata_articles.json'
+  stop_words: 'stop_words.txt'
   target_categories: 'new_top_categories.txt'
 
 verbose: False
