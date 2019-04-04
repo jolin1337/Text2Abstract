@@ -1,14 +1,17 @@
 model:
   path: '/opt/ml/model/'
-  doc2vec_model: 'doc2vec_MM.model'
-  train_doc2vec_model: True
-  categorization_model: 'lstm-multi-categorizer-larger.model'
-  model_checkpoint: False
-  categorization_params:
+  vec_model:
+    train: True
+    type: 'word2vec'
+    name: 'word2vec_MM.model'
+  categorization_model:
+    name: 'lstm-multi-categorizer-larger.model'
+    type: 'blstm'
+    model_checkpoint: False
     use_ner: False
 data:
   path: '/opt/ml/input/data/training/'
   articles: 'new_metadata_articles.json'
   target_categories: 'new_top_categories.txt'
 
-verbose: True
+verbose: False
