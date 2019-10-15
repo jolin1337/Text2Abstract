@@ -23,6 +23,7 @@ class BLSTMCategorizer(Categorizer):
       model = keras.models.Sequential()
       model.add(keras.layers.Bidirectional(keras.layers.LSTM(50, return_sequences=True,dropout=0.5),
                input_shape=input_shape))
+      model.add(keras.layers.Bidirectional(keras.layers.LSTM(50, return_sequences=True,dropout=0.5)))
       model.add(keras.layers.Conv1D(64,
                                     7,
                                     padding='valid',

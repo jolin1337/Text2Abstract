@@ -7,7 +7,7 @@ model:
   categorization_model:
     name: 'lstm-multi-categorizer-new-category-tree.model'
     type: 'blstm'
-    model_checkpoint: False
+    model_checkpoint: 'checkpoint'
     use_ner: False
 data:
   path: 'learning/data/'

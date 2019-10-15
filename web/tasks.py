@@ -15,9 +15,9 @@ def store_prediction():
     print("Storing predictions...")
     # Take previously 10 minutes
     now = datetime.datetime.now()
-    time = (now - datetime.timedelta(minutes=now.minute % 10 + 10,
-                                    seconds=now.second,
-                                    microseconds=now.microsecond)).strftime("%Y-%m-%d_%H-%M")
+    time = (now - datetime.timedelta(minutes=now.minute % 10 - 10,
+                                     seconds=now.second,
+                                     microseconds=now.microsecond)).strftime("%Y-%m-%d_%H-%M")
     for time_name in glob('./predictions/*'):
         if time_name == time:
             continue
@@ -36,6 +36,7 @@ def store_prediction():
                   'predicted_probability': pred['prediction']['category']['category_probability'],
                   'previous_categories': json.dumps(pred['categories'])
                 })
+            print(len(json.dumps(data)))
             redshift_handler.insert_into('auto_categorization_predictions', data)
             os.remove(fname)
             print(fname)

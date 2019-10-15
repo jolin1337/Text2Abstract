@@ -91,17 +91,43 @@ def replace_entities(data):
     yield x
 
 
-def train_and_store_model(evaluate=False):
+def get_articles():
     data = json.load(open(config.data['path'] + config.data['articles'], 'r', encoding='utf-8'))['articles']
-    articles = [(a['text'], a['categories']) for a in data]
+    articles = [(a['headline'] + ' ' + a['text'], a['categories']) for a in data]
 
     if config.data.get('target_categories', False):
         categories = open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')
-        articles = list(filter_articles(articles, categories))
+        articles = filter_articles(list(articles), categories)
     # articles = filter_article_category_locations(articles)
-    articles = list(filter_article_quantity_of_categories(articles, 1862))
-    articles = list(filter_articles_category_quantity(articles, 1))
+    articles = filter_article_quantity_of_categories(list(articles), 1862)
+    articles = filter_articles_category_quantity(list(articles), 1)
+    return list(articles)
 
+
+def get_vector_model(x_data=None, y_data=None, **params):
+    vec_model = Word2vecModel
+    if config.model['vec_model']['type'] == 'doc2vec':
+        vec_model = Doc2vecModel
+    random.seed(0)
+    vec_file = config.model['path'] + config.model['vec_model']['name']
+    if config.model['vec_model']['train']:
+        vec = vec_model(deterministic=params.get('deterministic', False))
+        vec.train(x_data, y_data, vector_size=params.get('vector_size', None))
+        vec.save_model(vec_file)
+    if vec is None:
+        vec = vec_model(model=vec_file,
+                        deterministic=params.get('deterministic', False))
+    return vec
+
+
+def get_categorization_model(vec, source=None):
+    if config.model['categorization_model']['type'] == 'lstm':
+        return LSTMCategorizer(vec, source)
+    return BLSTMCategorizer(vec, source)
+
+
+def train_and_store_model(evaluate=False):
+    articles = get_articles()
     random.shuffle(articles)
     log("Numer of articles:", len(articles))
     available_category_counts = collections.Counter([cat for text, categories in articles for cat in categories])
@@ -120,20 +146,8 @@ def train_and_store_model(evaluate=False):
         log("  Locations:    ", nr_replaced_pers)
 
     log("Train vec model")
-    ## Train model ##
-    vec = None
-    random.seed(0)
-    vec_file = config.model['path'] + config.model['vec_model']['name']
-    vecModel = Word2vecModel
-    if config.model['vec_model']['type'] == 'doc2vec':
-        vecModel = Doc2vecModel
-
-    if config.model['vec_model']['train']:
-        vec = vecModel()
-        vec.train(x_data, y_data)
-        vec.save_model(vec_file)
-    if vec is None:
-        vec = vecModel(model=vec_file, deterministic=True)
+    # Train model #
+    vec = get_vector_model(x_data, y_data, deterministic=True)
     callbacks = []
     log("Train categorization model")
     if config.model['categorization_model']['model_checkpoint']:
@@ -143,20 +157,16 @@ def train_and_store_model(evaluate=False):
         tensorboard = keras.callbacks.TensorBoard(log_dir=config.model['path'] + '/Graph', histogram_freq=0, write_graph=True, write_images=True)
         callbacks = [checkpoint, tensorboard]
 
-    if config.model['categorization_model']['type'] == 'lstm':
-        Categorizer = LSTMCategorizer
-    else:
-        Categorizer = BLSTMCategorizer
-    categorizer = Categorizer(vec)
-    model = categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
+    categorizer = get_categorization_model(vec)
+    categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
     categorizer.save_model(config.model['path'] + config.model['categorization_model']['name'])
 
     if evaluate:
         log("Evaluate model")
-        ## Evaluate model ##
-        categorizer = Categorizer(None, config.model['path'] + output_file)
+        # Evaluate model #
+        categorizer = get_categorization_model(None, config.model['path'] + config.model['categorization_model']['name'])
         categorizer.evaluate_categorizer(x_val_data, y_val_data)
 
 
 if __name__ == '__main__':
-    train_and_store_model(config.data['articles'], config.model['categorization_model']['name'])
+    train_and_store_model(evaluate=True)

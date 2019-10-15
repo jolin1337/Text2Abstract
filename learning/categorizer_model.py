@@ -11,6 +11,9 @@ from learning.doc2vec_model import Doc2vecModel
 pandas.set_option('display.expand_frame_repr', False)
 
 
+class UnknownModelException(Exception):
+    pass
+
 class Categorizer(object):
     def __init__(self, vec_model, model_file=None):
         self.vec_model = vec_model
@@ -23,7 +26,6 @@ class Categorizer(object):
         self.epochs = 15
 
     def preprocess_text(self, texts, labels):
-        log("Preprocess text")
         document_texts = [keras.preprocessing.text.text_to_word_sequence(striphtml(text))
                       for text in texts]
         for doc, label in zip(document_texts, labels):
@@ -45,7 +47,7 @@ class Categorizer(object):
                 yield vec, label
 
     def categorize_text(self, text):
-        if self.model == None:
+        if self.model is None:
             raise UnknownModelException()
         processed_text, _ = zip(*list(self.preprocess_text(text, [None] * len(text))))
         probas = self.model.predict([np.array(processed_text)])
@@ -58,21 +60,21 @@ class Categorizer(object):
         raise "Not implemented"
 
     def train_categorizer(self, x_data, y_data, split_train_val=0.9, **model_args):
-      self.categories = list(set(c for y in y_data for c in y))
-      y_data = [[self.categories.index(c) for c in y] for y in y_data]
-      y_data_one_hot = encode_n_hot_vectors(y_data)
-      x_data_processed, y_data_one_hot_processed = zip(*list(self.preprocess_text(x_data, y_data_one_hot)))
-      x_train, y_train, x_val, y_val = split_train_validation_data(split_train_val, x_data_processed, y_data_one_hot_processed)
+        self.categories = list(set(c for y in y_data for c in y))
+        y_data = [[self.categories.index(c) for c in y] for y in y_data]
+        y_data_one_hot = encode_n_hot_vectors(y_data)
+        x_data_processed, y_data_one_hot_processed = zip(*list(self.preprocess_text(x_data, y_data_one_hot)))
+        x_train, y_train, x_val, y_val = split_train_validation_data(split_train_val, x_data_processed, y_data_one_hot_processed)
 
-      log("Done preprocessing data")
-      model = self.construct_model(self.categories)
-      model.compile(loss='categorical_crossentropy',
-                    optimizer='rmsprop',
-                    metrics=['accuracy', f1_score])
-      log("Labels: ", self.categories)
-      model.fit([np.array(x_train)], [np.array(y_train)], validation_data=([np.array(x_val)], [np.array(y_val)]),
-                **{'epochs': self.epochs, **model_args})
-      return model
+        log("Done preprocessing data")
+        model = self.construct_model(self.categories)
+        model.compile(loss='categorical_crossentropy',
+                      optimizer='rmsprop',
+                      metrics=['accuracy', f1_score])
+        log("Labels: ", self.categories)
+        model.fit([np.array(x_train)], [np.array(y_train)], validation_data=([np.array(x_val)], [np.array(y_val)]),
+                  **{'epochs': self.epochs, **model_args})
+        return model
 
     def evaluate_categorizer(self, x_data, y_data):
         if not self.model:

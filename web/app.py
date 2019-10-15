@@ -66,7 +66,7 @@ def categorize_text(text):
         texts = model.replace_entities(texts)
         entities = polyglot.text.Text(text).entities
     prediction = categorizer.categorize_text(texts)[0]
-    categories = [ {'category_name': c, 'category_probability': p } for c, p in prediction.items() ]
+    categories = [{'category_name': c, 'category_probability': p} for c, p in prediction.items()]
     categories.sort(key=lambda c: c['category_name'])
     category = max(categories, key=lambda c: c['category_probability'])
     return {
@@ -85,15 +85,13 @@ def categorize_text(text):
 def store_prediction(text, prediction, categories, article_id):
     now = datetime.datetime.now()
     time = (now - datetime.timedelta(minutes=now.minute % 10,
-                                    seconds=now.second,
-                                    microseconds=now.microsecond)).strftime("%Y-%m-%d_%H-%M")
+                                     seconds=now.second,
+                                     microseconds=now.microsecond)).strftime("%Y-%m-%d_%H-%M")
     os.makedirs('predictions/' + time, exist_ok=True)
     number = 1
     while True:
         hist = {'predictions': []}
         if os.path.isfile('predictions/%s/%d' % (time, number)):
-            hist = json.load(open('predictions/%s/%d' % (time, number), 'r', encoding='utf-8'))
-        if len(hist['predictions']) >= 10000:
             number += 1
             continue
         hist['predictions'].append({

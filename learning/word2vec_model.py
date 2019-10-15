@@ -1,29 +1,30 @@
 import os
 import random
-import gensim
 import re
-from learning import config
+import gensim
 import jieba
 import numpy as np
 from learning.logger import log
+from learning import config
+
 
 def loadStopWords(filepath):
-  stopwords = [line.strip() for line in open(filepath,'r',encoding="utf-8").readlines()]
-  return stopwords
+    stopwords = [line.strip() for line in open(filepath,'r',encoding="utf-8").readlines()]
+    return stopwords
 
 
 def removeStopWords(sentence):
-  stopwords = loadStopWords(config.data['path'] + config.data['stop_words'])
-  output = ''
-  sentence_seg = sentence.split(' ') # jieba.cut(sentence)
-  for word in sentence_seg:
-    if word not in stopwords and word != "":
-      output += word
-      output += " "
-  return output
+    stopwords = loadStopWords(config.data['path'] + config.data['stop_words'])
+    output = ''
+    sentence_seg = sentence.split(' ') # jieba.cut(sentence)
+    for word in sentence_seg:
+        if word not in stopwords and word != "":
+            output += word
+            output += " "
+    return output
 
 
-class Word2vecModel(object):
+class Word2vecModel():
     def __init__(self, model=None, deterministic=False):
         self.model = None
         self.deterministic = deterministic
@@ -40,7 +41,8 @@ class Word2vecModel(object):
         self.model.save(model)
         return self
 
-    def train(self, data, c_data=None, vector_size=1000, window=15):
+    def train(self, data, c_data=None, vector_size=0, window=15):
+        vector_size = vector_size or 300
         clean_text_re = '[，。：？“”！、（）《》’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+'
         fname = 'tmp_word2vec_data.txt'
         fout = open(fname, 'w', encoding='utf-8')
