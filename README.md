@@ -23,8 +23,11 @@ $ source .env
 
 ## To fetch data run
 ```
-$ python learning/mm_services/fetch_data.py
+$ python learning/mm_services/fetch_data.py learning/data/new_metadata_articles.json
 ```
+
+## Create a list of top categories, one line per category
+Name it `new_top_categories.txt`
 
 ## To train
 All training parameters are ported to the configuration file specified in the `config` folder
