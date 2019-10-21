@@ -1,6 +1,6 @@
 import learning.mm_services.redshift_handler as rh
 from learning.utils import striphtml
-import json
+import jsonlines
 from collections import defaultdict
 from learning import config
 import traceback
@@ -67,9 +67,8 @@ def main(output_file_name, categories_file_name, stop_words_file_name):
 
     fp.close()
 
-    json.dump({
-        'articles': list(articles)
-    }, open(output_file_name, 'w'))
+    with jsonlines.open(output_file_name, mode='w') as writer:
+      writer.write_all(list(articles))
 
 def get_short_uuid(limit=5000, offset=0):
     print('Before executing query')

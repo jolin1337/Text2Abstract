@@ -7,6 +7,7 @@ gensim
 psycopg2-binary
 numpy
 tensorflow==1.13.1
+jsonlines
 sklearn
 pandas
 jieba

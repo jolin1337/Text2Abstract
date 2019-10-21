@@ -11,7 +11,7 @@ model:
 data:
   path: 'learning/data/'
   stop_words: 'stop_words.txt'
-  articles: 'new_metadata_articles.json'
+  articles: 'new_metadata_articles.jsonl'
   target_categories: 'new_top_categories.txt'
   min_word_count: 15 #minimum words required to make an accurate autocategorzation prediction.
 

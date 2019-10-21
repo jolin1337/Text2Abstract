@@ -2,6 +2,7 @@
 import numpy as np
 import keras
 
+import jsonlines
 import json
 import random
 import collections
@@ -91,8 +92,11 @@ def replace_entities(data):
 
 
 def get_articles():
-    data = json.load(open(config.data['path'] + config.data['articles'], 'r', encoding='utf-8'))['articles']
-    articles = [(a['headline'] + ' ' + a['text'], a['categories']) for a in data]
+    file = open(config.data['path'] +
+                config.data['articles'], 'r', encoding='utf-8')
+    reader = jsonlines.Reader(file)
+    data = list(reader)
+    articles = [(a['headline'] + ' ' + a['body'], a['categories']) for a in data]
 
     if config.data.get('target_categories', False):
         categories = open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')
