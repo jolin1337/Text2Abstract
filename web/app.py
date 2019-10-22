@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from dotenv import load_dotenv
+load_dotenv()
 
-from flask import Flask, request, render_template, Response
+from flask import Flask, request, Response
 from flask_cors import CORS
 
 import datetime

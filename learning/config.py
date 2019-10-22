@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 import yaml
 
 env = os.environ.get('ENV', 'test')
-_config = yaml.load(open(os.path.abspath("config/%s.yml" % (env, ))))
+_config = yaml.load(open(os.path.abspath("config/%s.yml" % (env, ))), Loader=yaml.FullLoader)
 model = _config['model']
 data = _config['data']
 

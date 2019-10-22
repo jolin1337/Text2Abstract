@@ -17,6 +17,7 @@ $ python -m venv ./venv
 $ ln -s venv/lib/python3.5/site-packages/learning learning
 $ python -m pip install -r requirements.txt
 $ cp .env.sample .env
+$ export PYTHONPATH=`pwd`
 ### Add SOLDR_TOKEN in .env file and do
 $ source .env
 ```

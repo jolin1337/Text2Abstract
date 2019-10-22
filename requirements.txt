@@ -14,3 +14,4 @@ pandas
 #git+https://github.com/aboSamoor/polyglot.git@master
 jieba
 timeloop
+python-dotenv
