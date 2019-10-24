@@ -133,17 +133,6 @@ def train_and_store_model(evaluate=False):
     log(available_category_counts)
     x_val_data, y_val_data, x_data, y_data = split_train_validation_data(0.1, *zip(*articles))
 
-    if config.model['categorization_model']['use_ner']:
-        x_data = list(replace_entities(x_data))
-        nr_replaced_orgs = sum([text.count('ORGANISATION') for text in x_data])
-        nr_replaced_locs = sum([text.count('LOCATION') for text in x_data])
-        nr_replaced_pers = sum([text.count('PERSON') for text in x_data])
-        nr_replaced_entities = nr_replaced_orgs + nr_replaced_locs + nr_replaced_pers
-        log("Number of replaced entities:", nr_replaced_entities)
-        log("  Persons:      ", nr_replaced_pers)
-        log("  Organizations:", nr_replaced_pers)
-        log("  Locations:    ", nr_replaced_pers)
-
     log("Train vec model")
     # Train model #
     vec = get_vector_model(x_data, y_data, deterministic=True)

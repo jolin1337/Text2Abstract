@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import load_dotenv, find_dotenv
 
 from flask import Flask, request, Response
 from flask_cors import CORS
@@ -8,8 +7,6 @@ from flask_cors import CORS
 import datetime
 import os
 import json
-
-from keras.models import model_from_json
 
 import web.tasks
 import learning.model as model
@@ -20,6 +17,7 @@ from learning.mm_services import content_service
 from learning.utils import striphtml
 from learning import config
 
+load_dotenv(find_dotenv())
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
 if config.model['vec_model']['type'] == 'doc2vec':
@@ -30,6 +28,7 @@ vec_file = config.model['path'] + config.model['vec_model']['name']
 model_file = config.model['path'] + config.model['categorization_model']['name']
 vec_model = VecModel(vec_file, deterministic=True)
 categorizer = Categorizer(vec_model, model_file)
+min_word_count = config.data.get('min_word_count', 10)
 
 
 class AppException(Exception):
@@ -37,15 +36,17 @@ class AppException(Exception):
         super(AppException, self).__init__(message)
         self.message = message
         self.status_code = status_code
+
     def to_dict(self):
-      return {
-          'message': self.message
-      }
+        return {
+            'message': self.message
+        }
 
 
 class CategorizingArticleException(AppException):
     def __init__(self, *argv, **argd):
         super().__init__(*argv, **argd)
+
     def to_dict(self):
         return {
             **super().to_dict(),
@@ -63,10 +64,10 @@ def create_response(content, status, mimetype="application/json"):
 def categorize_text(text):
     texts = [text]
     entities = []
-    if config.model['categorization_model']['use_ner']:
-        import polyglot.text
-        texts = model.replace_entities(texts)
-        entities = polyglot.text.Text(text).entities
+
+    if len(striphtml(text).split()) < min_word_count:
+        raise CategorizingArticleException("Too few words in text to make a categorization", 400)
+
     prediction = categorizer.categorize_text(texts)[0]
     categories = [{'category_name': c, 'category_probability': p} for c, p in prediction.items()]
     categories.sort(key=lambda c: c['category_name'])
@@ -97,10 +98,10 @@ def store_prediction(text, prediction, categories, article_id):
             number += 1
             continue
         hist['predictions'].append({
-          'text': text,
-          'prediction': prediction,
-          'categories': categories,
-          'article_id': article_id
+            'text': text,
+            'prediction': prediction,
+            'categories': categories,
+            'article_id': article_id
         })
         json.dump(hist, open('predictions/%s/%d' % (time, number), 'w', encoding='utf-8'))
         break
@@ -113,11 +114,11 @@ def categorize_by_uuid():
     article = content_service.find_article(uuid, found_articles)
     if article:
         return create_response(json.dumps({
-          **categorize_text(article['body']),
-          'articleUuid': uuid
+            **categorize_text(article['body']),
+            'articleUuid': uuid
         }), 200)
 
-    raise CategorizingArticleExceptien("No article found with uuid: %s" % (uuid,), 400)
+    raise CategorizingArticleException("No article found with uuid: %s" % (uuid,), 400)
 
 
 @app.route('/categorize')
@@ -161,9 +162,8 @@ def transformation():
 
 @app.errorhandler(AppException)
 def handle_invalid_usage(error):
-  print(json.dumps(error.to_dict()))
-  return create_response(json.dumps(error.to_dict()),
-                         status=error.status_code)
+    return create_response(json.dumps(error.to_dict()),
+                           status=error.status_code)
 
 
 if __name__ == '__main__':

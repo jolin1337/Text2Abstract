@@ -8,11 +8,11 @@ model:
     name: 'lstm-multi-categorizer-new-category-tree.model'
     type: 'blstm'
     model_checkpoint: 'checkpoint'
-    use_ner: False
 data:
   path: 'learning/data/'
   stop_words: 'stop_words.txt'
   articles: 'new_metadata_articles.json'
   target_categories: 'new_top_categories.txt'
+  min_word_count: 15 #minimum words required to make an accurate autocategorzation prediction.
 
 verbose: True
