@@ -5,7 +5,9 @@ import os
 import yaml
 
 env = os.environ.get('ENV', 'test')
-_config = yaml.load(open(os.path.abspath("config/%s.yml" % (env, ))), Loader=yaml.FullLoader)
+path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '..', "config/%s.yml")
+file = open(os.path.abspath(path % (env, )))
+_config = yaml.load(file, Loader=yaml.FullLoader)
 model = _config['model']
 data = _config['data']
 
