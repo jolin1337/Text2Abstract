@@ -13,8 +13,7 @@ def getArticles(limit=500000, offset=0):
       SELECT category_hierarchical_id, category_name, count(*) as nr_of_usages
       FROM cs_article_categories2
       WHERE category_hierarchical_id IS NOT NULL
-        AND length(category_hierarchical_id) = 7 -- allow only top categories for now
-      GROUP BY 1, 2
+      GROUP BY category_hierarchical_id, category_name
       HAVING count(*) > 500
     )
     SELECT article_uuid,
