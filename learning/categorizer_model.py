@@ -50,11 +50,11 @@ class Categorizer(object):
         if self.model is None:
             raise UnknownModelException()
         processed_text, _ = zip(*list(self.preprocess_text(text, [None] * len(text))))
-        probas = self.model.predict([np.array(processed_text)])
-        return [{
-            c: float(p)
-            for c, p in zip(self.categories, list(proba))
-        } for proba in probas]
+        probas = self.model.predict([np.array(processed_text)])[0]
+        return sorted([
+            (c, float(p)) for c, p in zip(self.categories, list(probas))
+        ], key=lambda tup: tup[1])
+
 
     def construct_model(self, categories):
         raise "Not implemented"
