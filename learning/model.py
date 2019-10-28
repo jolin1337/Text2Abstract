@@ -20,23 +20,24 @@ class UnknownModelException(Exception):
     pass
 
 
-def filter_articles(data, categories):
-    available_category_counts = collections.Counter([cat for x, y in data for cat in y if cat in categories])
-    min_category_count = available_category_counts.most_common()[-1][1]
-    current_category_counts = {cat: 0 for cat in categories}
-    for x, y in data:
-        x = x.strip()
-        if x == '':
+def filter_articles(articles, selected_categories):
+    # available_category_counts = collections.Counter([cat for x, y in articles for cat in y if cat in selected_categories])
+    # min_category_count = available_category_counts.most_common()[-1][1]
+    # current_category_counts = {cat: 0 for cat in selected_categories}
+    for text,categories in articles:
+        text = text.strip()
+        if text == '':
             continue
-        y = [c for c in y if c in categories and current_category_counts[c] < min_category_count]
-        if not y:
+        # categories = [c for c in categories if c in selected_categories and current_category_counts[c] < min_category_count]
+        categories = categories if any(c in selected_categories for c in categories) else False
+        if not categories:
             continue
-        for cat in y:
-            current_category_counts[cat] += 1
+        # for cat in categories:
+            # current_category_counts[cat] += 1
             #if current_category_counts[cat] > min_category_count:
             #  break
-        else:
-            yield x, y
+        # else:
+        yield text,categories
 
 
 def filter_articles_category_quantity(data, threshold):
