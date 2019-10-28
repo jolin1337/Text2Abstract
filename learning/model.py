@@ -104,7 +104,7 @@ def get_articles():
         articles = filter_articles(list(articles), categories)
     # articles = filter_article_category_locations(articles)
     articles = filter_article_quantity_of_categories(list(articles), 1862)
-    articles = filter_articles_category_quantity(list(articles), 1)
+    articles = filter_articles_category_quantity(list(articles), 500)
     return list(articles)
 
 
