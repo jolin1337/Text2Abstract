@@ -2,6 +2,7 @@ import psycopg2
 import os
 import pickle
 import hashlib
+from sys import exit
 
 
 def redshift_connection():
