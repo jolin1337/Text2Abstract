@@ -53,7 +53,7 @@ class Categorizer(object):
         probas = self.model.predict([np.array(processed_text)])[0]
         return sorted([
             (c, float(p)) for c, p in zip(self.categories, list(probas))
-        ], key=lambda tup: tup[1])
+        ], key=lambda tup: tup[1])[::-1]
 
 
     def construct_model(self, categories):
