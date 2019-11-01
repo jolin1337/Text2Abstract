@@ -17,9 +17,9 @@ def getArticles(limit=500000, offset=0):
       HAVING count(*) > 500
     )
     SELECT article_uuid,
-           body as text,
-           headline as headline,
-           lead as lead,
+           body,
+           headline,
+           lead,
            listagg('"' + categories.category_name + '"', ','::text) categories,
            listagg('"' + categories.category_hierarchical_id + '"', ','::text) category_ids,
            max(nr_of_usages) as nr_of_usages
@@ -39,7 +39,7 @@ def getArticles(limit=500000, offset=0):
     articles_result = []
     for i, article in enumerate(articles):
         try:
-            article['text'] = striphtml(article['text'])
+            article['body'] = striphtml(article['body'])
             article['lead'] = striphtml(article['lead'])
             article['headline'] = striphtml(article['headline'])
             article['categories'] = list(set([cs for cs in article['categories'][1:-1].split('","')]))
@@ -82,16 +82,16 @@ def get_short_uuid(limit=5000, offset=0):
       HAVING count(*) > 500
     )
     SELECT article_uuid,
-           body as text,
-           headline as headline,
-           lead as lead,
+           body,
+           headline,
+           lead,
            listagg('"' + categories.category_name + '"', ','::text) categories,
            listagg('"' + categories.category_hierarchical_id + '"', ','::text) category_ids,
            max(nr_of_usages) as nr_of_usages
     FROM cs_articles
     INNER JOIN cs_article_categories2 ON cs_articles.article_pk = cs_article_categories2.article_pk
     INNER JOIN categories ON categories.category_hierarchical_id = cs_article_categories2.category_hierarchical_id
-    WHERE publish_at > '2018-10-01'::DATE AND text IS NOT NULL AND headline IS NOT NULL
+    WHERE publish_at > '2018-10-01'::DATE AND body IS NOT NULL AND headline IS NOT NULL
     GROUP BY 1,2,3,4
     LIMIT %(limit)i
     OFFSET %(offset)i
