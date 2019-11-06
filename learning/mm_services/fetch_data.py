@@ -7,12 +7,12 @@ import traceback
 import sys
 
 
-def getArticles(limit=500000, offset=0):
+def getArticles(category_hierarchical_prefix, limit=500000, offset=0):
     articles = rh.run_query("""
     WITH categories AS (
       SELECT category_hierarchical_id, category_name, count(*) as nr_of_usages
       FROM cs_article_categories2
-      WHERE category_hierarchical_id IS NOT NULL
+      WHERE category_hierarchical_id LIKE '%{category_hierarchical_prefix}%%'
       GROUP BY category_hierarchical_id, category_name
       HAVING count(*) > 500
     )
@@ -26,13 +26,14 @@ def getArticles(limit=500000, offset=0):
     FROM cs_articles
     INNER JOIN cs_article_categories2 ON cs_articles.article_pk = cs_article_categories2.article_pk
     INNER JOIN categories ON categories.category_hierarchical_id = cs_article_categories2.category_hierarchical_id
-    WHERE publish_at > '2018-10-01'::DATE AND text IS NOT NULL AND headline IS NOT NULL
+    WHERE publish_at > '2018-10-01'::DATE AND body IS NOT NULL AND headline IS NOT NULL
     GROUP BY 1,2,3,4
     LIMIT %(limit)i
     OFFSET %(offset)i
   """ % {
         'limit': limit,
-        'offset': offset
+        'offset': offset,
+        'category_hierarchical_prefix': category_hierarchical_prefix
     })
 
     categories = defaultdict(int)
@@ -56,7 +57,8 @@ def getArticles(limit=500000, offset=0):
 
 
 def main(output_file_name, categories_file_name, stop_words_file_name):
-    articles, categories = getArticles()
+    prefix = config.model['category_hierarchical_prefix']
+    articles, categories = getArticles(prefix)
     print(categories)
 
     open(stop_words_file_name, 'a').close()
@@ -136,5 +138,4 @@ def get_arg(index):
         return sys.argv[index]
 
 if __name__ == '__main__':
-    get_short_uuid()
-    #main(output_file_name=get_arg(1), categories_file_name=get_arg(2), stop_words_file_name=get_arg(3))
+    main(output_file_name=get_arg(1), categories_file_name=get_arg(2), stop_words_file_name=get_arg(3))
