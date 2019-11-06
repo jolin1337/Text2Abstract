@@ -68,8 +68,8 @@ def categorize_text(text):
     if len(striphtml(text).split()) < min_word_count:
         raise CategorizingArticleException("Too few words in text to make a categorization", 400)
 
-    prediction = categorizer.categorize_text(texts)[0]
-    categories = [{'category_name': c, 'category_probability': p} for c, p in prediction.items()]
+    prediction = categorizer.categorize_text(texts)
+    categories = [{'category_name': c, 'category_probability': p} for c, p in prediction]
     categories.sort(key=lambda c: c['category_name'])
     category = max(categories, key=lambda c: c['category_probability'])
     return {
