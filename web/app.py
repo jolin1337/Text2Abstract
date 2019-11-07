@@ -25,7 +25,7 @@ if config.model['vec_model']['type'] == 'doc2vec':
 else:
     VecModel = Word2vecModel
 vec_file = config.model['path'] + config.model['vec_model']['name']
-model_file = config.model['path'] + config.model['categorization_model']['name']
+model_file = config.model['path'] + config.model['categorization_model_3']['name']
 vec_model = VecModel(vec_file, deterministic=True)
 categorizer = Categorizer(vec_model, model_file)
 min_word_count = config.data.get('min_word_count', 10)

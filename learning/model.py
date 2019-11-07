@@ -101,16 +101,15 @@ def filter_article_category_lengths(articles, length):
             continue
         yield article, categories
 
-def get_articles():
-    file = open(config.model['categorization_model']['articles'], 'r', encoding='utf-8')
+def get_articles(category_level):
+    file = open(config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
     reader = jsonlines.Reader(file)
     data = list(reader)
     articles = [(a['headline'] + ' ' + a['body'], a['category_ids']) for a in data]
     # articles = filter_article_category_locations(articles)
-    category_level = int(config.model['categorization_model']['category_level'])
     length = (category_level + 1) * 3 + category_level
     articles = list(filter_article_category_lengths(articles, length))
-    articles = list(limit_article_groups_to_minimum_category_size(articles))
+    # articles = list(limit_article_groups_to_minimum_category_size(articles))
     articles = list(filter_articles_category_quantity(articles, 100))
     articles = list(filter_article_quantity_of_categories(articles, 1862))
 
@@ -134,13 +133,15 @@ def get_vector_model(x_data=None, y_data=None, **params):
 
 
 def get_categorization_model(vec, source=None):
-    if config.model['categorization_model']['type'] == 'lstm':
+    if config.model['categorization_model_4']['type'] == 'lstm':
         return LSTMCategorizer(vec, source)
     return BLSTMCategorizer(vec, source)
 
 
-def train_and_store_model(evaluate=False):
-    articles = get_articles()
+def train_and_store_model(evaluate=False, category_level=None):
+    if category_level == None:
+        raise "category_level can't be None!"
+    articles = get_articles(category_level)
     random.shuffle(articles)
     log("Numer of articles:", len(articles))
     available_category_counts = collections.Counter([cat for text, categories in articles for cat in categories])
@@ -152,8 +153,8 @@ def train_and_store_model(evaluate=False):
     vec = get_vector_model(x_data, y_data, deterministic=True)
     callbacks = []
     log("Train categorization model")
-    if config.model['categorization_model']['model_checkpoint']:
-        checkpoint = keras.callbacks.ModelCheckpoint(config.model['path'] + config.model['categorization_model']['model_checkpoint'],
+    if config.model['categorization_model_' + str(category_level)]['model_checkpoint']:
+        checkpoint = keras.callbacks.ModelCheckpoint(config.model['path'] + config.model['categorization_model_4']['model_checkpoint'],
                                                      monitor='val_loss', mode='min',
                                                      save_best_only=True, save_weights_only=True, period=5)
         tensorboard = keras.callbacks.TensorBoard(log_dir=config.model['path'] + '/Graph', histogram_freq=0, write_graph=True, write_images=True)
@@ -161,14 +162,14 @@ def train_and_store_model(evaluate=False):
 
     categorizer = get_categorization_model(vec)
     categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
-    categorizer.save_model(config.model['path'] + config.model['categorization_model']['name'])
+    categorizer.save_model(config.model['path'] + config.model['categorization_model_' + str(category_level)]['name'])
 
     if evaluate:
         log("Evaluate model")
         # Evaluate model #
-        categorizer = get_categorization_model(None, config.model['path'] + config.model['categorization_model']['name'])
+        categorizer = get_categorization_model(None, config.model['path'] + config.model['categorization_model_' + str(category_level)]['name'])
         categorizer.evaluate_categorizer(x_val_data, y_val_data)
 
 
 if __name__ == '__main__':
-    train_and_store_model(evaluate=True)
+    train_and_store_model(evaluate=True, category_level=4)
