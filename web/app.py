@@ -10,79 +10,18 @@ import json
 
 import web.tasks
 import learning.model as model
-from learning.categorizer_model import Categorizer
-from learning.word2vec_model import Word2vecModel
-from learning.doc2vec_model import Doc2vecModel
 from learning.mm_services import content_service
-from learning.utils import striphtml
-from learning import config
+from categorizer_service import categorize_text, CategorizingArticleException, AppException
 
 load_dotenv(find_dotenv())
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
 CORS(app)
-if config.model['vec_model']['type'] == 'doc2vec':
-    VecModel = Doc2vecModel
-else:
-    VecModel = Word2vecModel
-vec_file = config.model['path'] + config.model['vec_model']['name']
-model_file = config.model['path'] + config.model['categorization_model_3']['name']
-vec_model = VecModel(vec_file, deterministic=True)
-categorizer = Categorizer(vec_model, model_file)
-min_word_count = config.data.get('min_word_count', 10)
-
-
-class AppException(Exception):
-    def __init__(self, message, status_code):
-        super(AppException, self).__init__(message)
-        self.message = message
-        self.status_code = status_code
-
-    def to_dict(self):
-        return {
-            'message': self.message
-        }
-
-
-class CategorizingArticleException(AppException):
-    def __init__(self, *argv, **argd):
-        super().__init__(*argv, **argd)
-
-    def to_dict(self):
-        return {
-            **super().to_dict(),
-            "error": "Categorizing article"
-        }
-
 
 def create_response(content, status, mimetype="application/json"):
     response = Response(response=str(content),
                         status=status, mimetype=mimetype)
     response.headers["Content-Type"] = mimetype
     return response
-
-
-def categorize_text(text):
-    texts = [text]
-    entities = []
-
-    if len(striphtml(text).split()) < min_word_count:
-        raise CategorizingArticleException("Too few words in text to make a categorization", 400)
-
-    prediction = categorizer.categorize_text(texts)
-    categories = [{'category_name': c, 'category_probability': p} for c, p in prediction]
-    categories.sort(key=lambda c: c['category_name'])
-    category = max(categories, key=lambda c: c['category_probability'])
-    return {
-        'category': category,
-        'categories': prediction,
-        'entities': [{
-            'tag': ent.tag,
-            'words': ent,
-            'start_word_index': ent.start,
-            'end_word_index': ent.end
-        } for ent in entities],
-        'classified_text': striphtml(text)
-    }
 
 
 def store_prediction(text, prediction, categories, article_id):
