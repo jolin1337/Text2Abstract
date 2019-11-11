@@ -56,20 +56,23 @@ def getArticles(category_hierarchical_prefix, limit=500000, offset=0):
     return articles_result,categories
 
 
-def main(output_file_name, categories_file_name, stop_words_file_name):
-    prefix = config.model['category_hierarchical_prefix']
+def main(category_level):
+    model = config.model['categorization_model_' +
+                 str(category_level)]
+    prefix = model['category_hierarchical_prefix']
+    print(prefix)
     articles, categories = getArticles(prefix)
     print(categories)
 
-    open(stop_words_file_name, 'a').close()
+    # open(stop_words_file_name, 'a').close()
 
-    fp = open(categories_file_name, 'w')
-    for k in categories.keys():
-        fp.write(k + '\n')
+    # fp = open(categories_file_name, 'w')
+    # for k in categories.keys():
+    #     fp.write(k + '\n')
 
-    fp.close()
+    # fp.close()
 
-    with jsonlines.open(output_file_name, mode='w') as writer:
+    with jsonlines.open(model['articles'], mode='w') as writer:
       writer.write_all(list(articles))
 
 def get_short_uuid(limit=5000, offset=0):
@@ -138,4 +141,4 @@ def get_arg(index):
         return sys.argv[index]
 
 if __name__ == '__main__':
-    main(output_file_name=get_arg(1), categories_file_name=get_arg(2), stop_words_file_name=get_arg(3))
+    main(sys.argv[1]) # send a category level
