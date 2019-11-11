@@ -12,7 +12,7 @@ def getArticles(category_hierarchical_prefix, limit=500000, offset=0):
     WITH categories AS (
       SELECT category_hierarchical_id, category_name, count(*) as nr_of_usages
       FROM cs_article_categories2
-      WHERE category_hierarchical_id LIKE '%{category_hierarchical_prefix}%%'
+      WHERE category_hierarchical_id LIKE '%(category_hierarchical_prefix)s-%%'
       GROUP BY category_hierarchical_id, category_name
       HAVING count(*) > 500
     )
