@@ -5,6 +5,14 @@ model:
     type: 'word2vec'
     name: 'gensim_models/word2vec_MM_new_category_tree.model'
 
+  categorization_model_1:
+    name: 'RYF-lstm-multi-categorizer-new-category-tree.model'
+    type: 'blstm'
+    model_checkpoint: 'checkpoint'
+    category_level: 1
+    category_hierarchical_prefix: RYF
+    articles: learning/data/RYF_articles.jsonl
+
   categorization_model_3:
     name: 'RYF-QPR-lstm-multi-categorizer-new-category-tree.model'
     type: 'blstm'
