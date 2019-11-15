@@ -59,9 +59,14 @@ class CategorizerService:
 def categorize_text(text):
     predictions = {}
     for category_level in [1, 3, 4]:
-        predictions[category_level] = CategorizerService(category_level).categorize_text(text)
-        # category = max(categories, key=lambda c: c['category_probability'])
+        predictions[category_level] = CategorizerService(category_level).categorize_text(text)[0:7]
     entities = []
+
+    category = None
+    top_predictions = [predictions[level][0][0] for level in predictions]
+    if top_predictions[0] in top_predictions[1] and top_predictions[1] in top_predictions[2]:
+        category = top_predictions[2]
+
     return {
         'category': category,
         'predictions': predictions,
