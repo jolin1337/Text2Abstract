@@ -34,35 +34,48 @@ class CategorizingArticleException(AppException):
         }
 
 
-def categorize_text(text, category_level):
-    model_file = config.model['path'] + \
-        config.model['categorization_model_' + str(category_level)]['name']
+class CategorizerService:
+    def __init__(self, category_level):
+        self.model_file = config.model['path'] + \
+            config.model['categorization_model_' + str(category_level)]['name']
+        self.vec_model = VecModel(vec_file, deterministic=True)
+        self.categorizer = Categorizer(self.vec_model, self.model_file)
+        self.min_word_count = config.data.get('min_word_count', 10)
 
+    def categorize_text(self, text):
+        texts = [text]
 
-    vec_model = VecModel(vec_file, deterministic=True)
-    categorizer = Categorizer(vec_model, model_file)
-    min_word_count = config.data.get('min_word_count', 10)
+        if len(striphtml(text).split()) < self.min_word_count:
+            raise CategorizingArticleException(
+                "Too few words in text to make a categorization", 400)
 
-    texts = [text]
+        prediction = self.categorizer.categorize_text(texts)
+        # categories = [{'category_name': c, 'category_probability': p}
+        #             for c, p in prediction]
+        # categories.sort(key=lambda c: c['category_name'])
+        return prediction
+        
+
+def categorize_text(text):
+    predictions = {}
+    for category_level in [1, 3, 4]:
+        predictions[category_level] = CategorizerService(category_level).categorize_text(text)
+        # category = max(categories, key=lambda c: c['category_probability'])
     entities = []
-
-    if len(striphtml(text).split()) < min_word_count:
-        raise CategorizingArticleException(
-            "Too few words in text to make a categorization", 400)
-
-    prediction = categorizer.categorize_text(texts)
-    categories = [{'category_name': c, 'category_probability': p}
-                  for c, p in prediction]
-    categories.sort(key=lambda c: c['category_name'])
-    category = max(categories, key=lambda c: c['category_probability'])
     return {
         'category': category,
-        'categories': prediction,
+        'predictions': predictions,
         'entities': [{
             'tag': ent.tag,
             'words': ent,
             'start_word_index': ent.start,
             'end_word_index': ent.end
-        } for ent in entities],
-        'classified_text': striphtml(text)
+        } for ent in entities]
+        # 'classified_text': striphtml(text)
     }
+
+if __name__ == '__main__':
+    import pprint
+    from sys import argv
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(categorize_text(argv[1]))
