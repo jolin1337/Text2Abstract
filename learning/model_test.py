@@ -43,7 +43,7 @@ class TestModel(unittest.TestCase):
     def test_categorize_text_level_3(self):
         text = 'Gustaf Berglund, som tävlar för IFK Mora, hade tillsammans med Johan Häggström lyckats ta sig till finalen i söndagens sprintstafett, när det andra svenska laget med Gustav Nordström och Teodor Peterson hade åkt ut redan i prologen. I finalen låg Sverige bra med i klungan, men då körde Gustaf Berglund ihop med ryske Artiom Maltsev och föll. – Han var på min skida litegrann. Det var därför jag ramlade. Jag vet inte exakt vad som hände. Inombords är jag kanske lite mer upprörd än vad jag är utåt, säger Berglund till . Men trots det så lyckades Johan Häggström komma ikapp klungan igen, och Sverige slutade på en åttondeplats. De svenska herrarna hyllades för sin placering, och Berglund var nöjd med helgens instatser. – Jag är helt makalöst glad över att ha fått chansen att åka här och att det har gått så bra som det faktiskt har gjort. Det gav verkligen mersmak, säger Gustaf Berglund till . Nästa vecka är det dags för U23-VM där Berglund ska delta, och när han under dagens lopp sträckte höften är han orolig för hur det ska påverka. – Jag är lite orolig. Jag vill verkligen vara bra till dess. Jag ska verkligen försöka få till det, säger han till . U23-VM hålls i Lahti mellan den 20 och 27 januari'
         result = categorizer_3.categorize_text([text])[0]
-        self.assertEqual(result[0], 'RYF-QPR-HGB-DNB')
+        self.assertEqual(result[0], 'RYF-QPR-HGB-AYA')
         self.assertGreater(result[1], 0.7)
 
     def test_categorize_text_level_4(self):
