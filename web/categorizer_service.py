@@ -49,7 +49,7 @@ class CategorizerService:
             raise CategorizingArticleException(
                 "Too few words in text to make a categorization", 400)
 
-        prediction = self.categorizer.categorize_text(texts)
+        prediction = self.categorizer.categorize_text(texts)[0]
         return prediction
         
 
