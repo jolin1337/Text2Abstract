@@ -57,7 +57,6 @@ def categorize_text(text):
     predictions = {}
     for category_level in [1, 3, 4]:
         predictions[category_level] = CategorizerService(category_level).categorize_text(text)[0:7]
-    entities = []
 
     category = None
     top_predictions = [predictions[level][0][0] for level in predictions]
@@ -66,13 +65,7 @@ def categorize_text(text):
 
     return {
         'category': category,
-        'predictions': [{ 'category_level': level, 'predictions': predictions[level] } for level in predictions],
-        'entities': [{
-            'tag': ent.tag,
-            'words': ent,
-            'start_word_index': ent.start,
-            'end_word_index': ent.end
-        } for ent in entities]
+        'predictions': [{ 'category_level': level, 'predictions': predictions[level] } for level in predictions]
         # 'classified_text': striphtml(text)
     }
 
