@@ -66,7 +66,7 @@ def categorize_text(text):
 
     return {
         'category': category,
-        'predictions': predictions,
+        'predictions': [{ 'category_level': level, 'predictions': predictions[level] } for level in predictions],
         'entities': [{
             'tag': ent.tag,
             'words': ent,
