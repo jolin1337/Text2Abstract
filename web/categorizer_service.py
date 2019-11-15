@@ -50,9 +50,6 @@ class CategorizerService:
                 "Too few words in text to make a categorization", 400)
 
         prediction = self.categorizer.categorize_text(texts)
-        # categories = [{'category_name': c, 'category_probability': p}
-        #             for c, p in prediction]
-        # categories.sort(key=lambda c: c['category_name'])
         return prediction
         
 
