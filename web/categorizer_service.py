@@ -59,9 +59,14 @@ def categorize_text(text):
         predictions[category_level] = CategorizerService(category_level).categorize_text(text)[0:7]
 
     category = None
-    top_predictions = [predictions[level][0][0] for level in predictions]
-    if top_predictions[0] in top_predictions[1] and top_predictions[1] in top_predictions[2]:
-        category = top_predictions[2]
+    top_predictions = [predictions[level][0] for level in predictions]
+    print(top_predictions)
+    if top_predictions[0][1] > 0.5:
+        category = top_predictions[0][0]
+        if top_predictions[0][0] in top_predictions[1][0] and top_predictions[1][1] > 0.5:
+            category = top_predictions[1][0]
+            if top_predictions[1][0] in top_predictions[2][0] and top_predictions[2][1] > 0.5:
+                category = top_predictions[2][0]
 
     return {
         'category': category,
