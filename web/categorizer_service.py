@@ -60,7 +60,6 @@ def categorize_text(text):
 
     category = None
     top_predictions = [predictions[level][0] for level in predictions]
-    print(top_predictions)
     if top_predictions[0][1] > 0.5:
         category = top_predictions[0][0]
         if top_predictions[0][0] in top_predictions[1][0] and top_predictions[1][1] > 0.5:
