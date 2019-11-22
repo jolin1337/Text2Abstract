@@ -171,4 +171,5 @@ def train_and_store_model(evaluate=False, category_level=None):
 
 
 if __name__ == '__main__':
-    train_and_store_model(evaluate=True, category_level=4)
+    for i in [1, 3, 4]:
+        train_and_store_model(evaluate=True, category_level=i)
