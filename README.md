@@ -36,6 +36,15 @@ All training parameters are ported to the configuration file specified in the `c
 $ python learning/model.py
 ```
 
+## To evaluate models
+```
+# creates a result.csv with all articles in the specified article source evaluated by the models, with the actual categories and the predicted categories
+python evaluation/evaluate_models.py
+
+# takes the result.csv and calculates different accuracies depending on the probability used for filtering out predictions.
+ruby evaluation/calculate_accuracy.rb
+```
+
 ## To run a local webservice
 ```
 $ python web/app.py

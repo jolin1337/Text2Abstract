@@ -8,3 +8,4 @@ learning/trained-models/
 
 venv/
 .env
+evaluation/result.csv
