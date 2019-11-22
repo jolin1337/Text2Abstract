@@ -51,7 +51,21 @@ class CategorizerService:
 
         prediction = self.categorizer.categorize_text(texts)[0]
         return prediction
+
+    def categorize_texts(self, texts):
+        prediction = self.categorizer.categorize_text(texts)
+        return prediction
         
+def categorize_texts(texts, article_categories):
+    texts = list(map(striphtml, texts))
+    predictions = {}
+    for category_level in [1, 3, 4]:
+        categorized = CategorizerService(category_level).categorize_texts(texts)
+        length =  (category_level + 1) * 3 + category_level
+        categories_for_level = list(map(lambda categories: list(filter(lambda c: len(c) == length, categories)), article_categories))
+        predictions[category_level] = list(zip(categories_for_level, categorized))
+    return predictions
+
 
 def categorize_text(text):
     predictions = {}
