@@ -74,11 +74,11 @@ def categorize_text(text):
 
     category = None
     top_predictions = [predictions[level][0] for level in predictions]
-    if top_predictions[0][1] > 0.5:
+    if top_predictions[0][1] > 0.7:
         category = top_predictions[0][0]
-        if top_predictions[0][0] in top_predictions[1][0] and top_predictions[1][1] > 0.5:
+        if top_predictions[0][0] in top_predictions[1][0] and top_predictions[1][1] > 0.7:
             category = top_predictions[1][0]
-            if top_predictions[1][0] in top_predictions[2][0] and top_predictions[2][1] > 0.5:
+            if top_predictions[1][0] in top_predictions[2][0] and top_predictions[2][1] > 0.7:
                 category = top_predictions[2][0]
 
     return {
