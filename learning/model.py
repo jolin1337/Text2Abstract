@@ -92,10 +92,11 @@ def replace_entities(data):
     yield x
 
 
-# Remove categories that have a category_hierarchical_id != length
-def filter_article_category_lengths(articles, length):
+def filter_article_category_lengths(articles, category_level):
+    """Remove categories that have are not of the right length for the level"""
+    category_hierarchical_id_length = (category_level + 1) * 3 + category_level
     for article, categories in articles:
-        categories = list(filter(lambda x: len(x) == length, categories))
+        categories = list(filter(lambda x: len(x) == category_hierarchical_id_length, categories))
         if len(categories) == 0:
             continue
         yield article, categories
@@ -106,8 +107,7 @@ def get_articles(category_level):
     data = list(reader)
     articles = [(a['headline'] + ' ' + a['body'], a['category_ids']) for a in data]
     # articles = filter_article_category_locations(articles)
-    category_hierarchical_id_length = (category_level + 1) * 3 + category_level
-    articles = list(filter_article_category_lengths(articles, category_hierarchical_id_length))
+    articles = list(filter_article_category_lengths(articles, category_level))
     # articles = list(limit_article_groups_to_minimum_category_size(articles))
     articles = list(filter_articles_category_quantity(articles, 100))
     articles = list(filter_article_quantity_of_categories(articles, 1862))
