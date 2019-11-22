@@ -81,16 +81,14 @@ def ping():
 @app.route('/invocations', methods=['POST'])
 def transformation():
     article = request.data.decode('utf-8')
+    article_json = json.loads(article)
+
     categories = None
     article_id = None
-    try:
-        article_json = json.loads(article)
-        # TODO: Add lead and maybe title to the text
-        text = article_json['body']
-        categories = article_json['categories2']
-        article_id = article_json['uuid']
-    except:
-        text = article
+
+    text = f"{article_json['headline']} {article_json['body']}"
+    categories = article_json['category_hierarchical_ids']
+    article_id = article_json.get('uuid', None)
 
     prediction = categorize_text(text)
     store_prediction(text, prediction, categories, article_id)
