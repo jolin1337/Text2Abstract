@@ -84,7 +84,6 @@ def categorize_text(text):
     return {
         'category': category,
         'predictions': [{ 'category_level': level, 'predictions': predictions[level] } for level in predictions]
-        # 'classified_text': striphtml(text)
     }
 
 if __name__ == '__main__':
