@@ -1,46 +1,46 @@
 import learning.mm_services.redshift_handler as rh
 from learning.utils import striphtml
-import json
+import jsonlines
 from collections import defaultdict
 from learning import config
 import traceback
 import sys
 
 
-def getArticles(limit=500000, offset=0):
+def getArticles(category_hierarchical_prefix, limit=500000, offset=0):
     articles = rh.run_query("""
     WITH categories AS (
       SELECT category_hierarchical_id, category_name, count(*) as nr_of_usages
       FROM cs_article_categories2
-      WHERE category_hierarchical_id IS NOT NULL
-        AND length(category_hierarchical_id) = 7 -- allow only top categories for now
-      GROUP BY 1, 2
+      WHERE category_hierarchical_id LIKE '%(category_hierarchical_prefix)s%%'
+      GROUP BY category_hierarchical_id, category_name
       HAVING count(*) > 500
     )
     SELECT article_uuid,
-           body as text,
-           headline as headline,
-           lead as lead,
+           body,
+           headline,
+           lead,
            listagg('"' + categories.category_name + '"', ','::text) categories,
            listagg('"' + categories.category_hierarchical_id + '"', ','::text) category_ids,
            max(nr_of_usages) as nr_of_usages
     FROM cs_articles
     INNER JOIN cs_article_categories2 ON cs_articles.article_pk = cs_article_categories2.article_pk
     INNER JOIN categories ON categories.category_hierarchical_id = cs_article_categories2.category_hierarchical_id
-    WHERE publish_at > '2018-10-01'::DATE AND text IS NOT NULL AND headline IS NOT NULL
+    WHERE publish_at > '2018-10-01'::DATE AND body IS NOT NULL AND headline IS NOT NULL
     GROUP BY 1,2,3,4
     LIMIT %(limit)i
     OFFSET %(offset)i
   """ % {
         'limit': limit,
-        'offset': offset
+        'offset': offset,
+        'category_hierarchical_prefix': category_hierarchical_prefix
     })
 
     categories = defaultdict(int)
     articles_result = []
     for i, article in enumerate(articles):
         try:
-            article['text'] = striphtml(article['text'])
+            article['body'] = striphtml(article['body'])
             article['lead'] = striphtml(article['lead'])
             article['headline'] = striphtml(article['headline'])
             article['categories'] = list(set([cs for cs in article['categories'][1:-1].split('","')]))
@@ -56,21 +56,24 @@ def getArticles(limit=500000, offset=0):
     return articles_result,categories
 
 
-def main(output_file_name, categories_file_name, stop_words_file_name):
-    articles, categories = getArticles()
+def main(category_level):
+    model = config.model['categorization_model_' +
+                 str(category_level)]
+    prefix = model['category_hierarchical_prefix']
+    print(prefix)
+    articles, categories = getArticles(prefix)
     print(categories)
 
-    open(stop_words_file_name, 'a').close()
+    # open(stop_words_file_name, 'a').close()
 
-    fp = open(categories_file_name, 'w')
-    for k in categories.keys():
-        fp.write(k + '\n')
+    # fp = open(categories_file_name, 'w')
+    # for k in categories.keys():
+    #     fp.write(k + '\n')
 
-    fp.close()
+    # fp.close()
 
-    json.dump({
-        'articles': list(articles)
-    }, open(output_file_name, 'w'))
+    with jsonlines.open(model['articles'], mode='w') as writer:
+      writer.write_all(list(articles))
 
 def get_short_uuid(limit=5000, offset=0):
     print('Before executing query')
@@ -84,16 +87,16 @@ def get_short_uuid(limit=5000, offset=0):
       HAVING count(*) > 500
     )
     SELECT article_uuid,
-           body as text,
-           headline as headline,
-           lead as lead,
+           body,
+           headline,
+           lead,
            listagg('"' + categories.category_name + '"', ','::text) categories,
            listagg('"' + categories.category_hierarchical_id + '"', ','::text) category_ids,
            max(nr_of_usages) as nr_of_usages
     FROM cs_articles
     INNER JOIN cs_article_categories2 ON cs_articles.article_pk = cs_article_categories2.article_pk
     INNER JOIN categories ON categories.category_hierarchical_id = cs_article_categories2.category_hierarchical_id
-    WHERE publish_at > '2018-10-01'::DATE AND text IS NOT NULL AND headline IS NOT NULL
+    WHERE publish_at > '2018-10-01'::DATE AND body IS NOT NULL AND headline IS NOT NULL
     GROUP BY 1,2,3,4
     LIMIT %(limit)i
     OFFSET %(offset)i
@@ -138,5 +141,4 @@ def get_arg(index):
         return sys.argv[index]
 
 if __name__ == '__main__':
-    get_short_uuid()
-    #main(output_file_name=get_arg(1), categories_file_name=get_arg(2), stop_words_file_name=get_arg(3))
+    main(sys.argv[1]) # send a category level

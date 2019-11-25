@@ -2,11 +2,12 @@ testresources
 flask
 flask_cors
 gunicorn
-keras==2.2.2
+keras==2.2.5
 gensim
 psycopg2-binary
 numpy
-tensorflow==1.13.1
+tensorflow==1.14.0
+jsonlines
 sklearn
 pandas
 jieba

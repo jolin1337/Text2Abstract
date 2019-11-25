@@ -2,6 +2,7 @@
 import numpy as np
 import keras
 
+import jsonlines
 import json
 import random
 import collections
@@ -14,39 +15,40 @@ from learning.doc2vec_model import Doc2vecModel
 from learning.word2vec_model import Word2vecModel
 from learning.logger import log
 
-
 class UnknownModelException(Exception):
     pass
 
 
-def filter_articles(data, categories):
-    available_category_counts = collections.Counter([cat for x, y in data for cat in y if cat in categories])
+# Limits the category articles to not exceed the category with the fewest articles
+def limit_article_groups_to_minimum_category_size(articles):
+    available_category_counts = collections.Counter([cat for x, y in articles for cat in y])
     min_category_count = available_category_counts.most_common()[-1][1]
-    current_category_counts = {cat: 0 for cat in categories}
-    for x, y in data:
-        x = x.strip()
-        if x == '':
+    current_category_counts = {cat: 0 for cat in available_category_counts.keys()}
+
+    for text,categories in articles:
+        text = text.strip()
+        if text == '':
             continue
-        y = [c for c in y if c in categories and current_category_counts[c] < min_category_count]
-        if not y:
+
+        categories = [c for c in categories if current_category_counts[c] < min_category_count]
+        if not categories:
             continue
-        for cat in y:
+
+        for cat in categories:
             current_category_counts[cat] += 1
-            #if current_category_counts[cat] > min_category_count:
-            #  break
-        else:
-            yield x, y
+
+        yield text,categories
 
 
-def filter_articles_category_quantity(data, threshold):
-    data = list(data)
-    categories = [c for x, y in data for c in y]
-    quantity = collections.Counter(categories)
-    for x, y in data:
-        y = [c for c in y if quantity[c] >= threshold]
-        if not y:
+def filter_articles_category_quantity(articles, threshold):
+    articles = list(articles)
+    all_categories = [c for x, y in articles for c in y]
+    quantity = collections.Counter(all_categories)
+    for text, categories in articles:
+        categories = [c for c in categories if quantity[c] >= threshold]
+        if not categories:
             continue
-        yield x, y
+        yield text, categories
 
 
 def filter_article_quantity_of_categories(data, max_articles):
@@ -70,7 +72,7 @@ def filter_article_category_locations(data):
     location_strings = [m['municipality'] for m in location_json] + [a['name'] for m in location_json for a in m['areas']]
     all_categories = set([category for text, categories in articles for category in categories])
     non_location_categories = [category for category in all_categories if category not in location_strings]
-    return filter_articles(data, non_location_categories)
+    return limit_article_groups_to_minimum_category_size(data, non_location_categories)
 
 
 def replace_entities(data):
@@ -90,17 +92,27 @@ def replace_entities(data):
     yield x
 
 
-def get_articles():
-    data = json.load(open(config.data['path'] + config.data['articles'], 'r', encoding='utf-8'))['articles']
-    articles = [(a['headline'] + ' ' + a['text'], a['categories']) for a in data]
+def filter_article_category_lengths(articles, category_level):
+    """Remove categories that have are not of the right length for the level"""
+    category_hierarchical_id_length = (category_level + 1) * 3 + category_level
+    for article, categories in articles:
+        categories = list(filter(lambda x: len(x) == category_hierarchical_id_length, categories))
+        if len(categories) == 0:
+            continue
+        yield article, categories
 
-    if config.data.get('target_categories', False):
-        categories = open(config.data['path']+ config.data['target_categories'], 'r', encoding='utf-8').read().split('\n')
-        articles = filter_articles(list(articles), categories)
+def get_articles(category_level):
+    file = open(config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
+    reader = jsonlines.Reader(file)
+    data = list(reader)
+    articles = [(a['headline'] + ' ' + a['body'], a['category_ids']) for a in data]
     # articles = filter_article_category_locations(articles)
-    articles = filter_article_quantity_of_categories(list(articles), 1862)
-    articles = filter_articles_category_quantity(list(articles), 1)
-    return list(articles)
+    articles = list(filter_article_category_lengths(articles, category_level))
+    # articles = list(limit_article_groups_to_minimum_category_size(articles))
+    articles = list(filter_articles_category_quantity(articles, 100))
+    articles = list(filter_article_quantity_of_categories(articles, 1862))
+
+    return articles
 
 
 def get_vector_model(x_data=None, y_data=None, **params):
@@ -120,13 +132,15 @@ def get_vector_model(x_data=None, y_data=None, **params):
 
 
 def get_categorization_model(vec, source=None):
-    if config.model['categorization_model']['type'] == 'lstm':
+    if config.model['categorization_model_4']['type'] == 'lstm':
         return LSTMCategorizer(vec, source)
     return BLSTMCategorizer(vec, source)
 
 
-def train_and_store_model(evaluate=False):
-    articles = get_articles()
+def train_and_store_model(evaluate=False, category_level=None):
+    if category_level == None:
+        raise "category_level can't be None!"
+    articles = get_articles(category_level)
     random.shuffle(articles)
     log("Numer of articles:", len(articles))
     available_category_counts = collections.Counter([cat for text, categories in articles for cat in categories])
@@ -138,8 +152,8 @@ def train_and_store_model(evaluate=False):
     vec = get_vector_model(x_data, y_data, deterministic=True)
     callbacks = []
     log("Train categorization model")
-    if config.model['categorization_model']['model_checkpoint']:
-        checkpoint = keras.callbacks.ModelCheckpoint(config.model['path'] + config.model['categorization_model']['model_checkpoint'],
+    if config.model['categorization_model_' + str(category_level)]['model_checkpoint']:
+        checkpoint = keras.callbacks.ModelCheckpoint(config.model['path'] + config.model['categorization_model_4']['model_checkpoint'],
                                                      monitor='val_loss', mode='min',
                                                      save_best_only=True, save_weights_only=True, period=5)
         tensorboard = keras.callbacks.TensorBoard(log_dir=config.model['path'] + '/Graph', histogram_freq=0, write_graph=True, write_images=True)
@@ -147,14 +161,15 @@ def train_and_store_model(evaluate=False):
 
     categorizer = get_categorization_model(vec)
     categorizer.train_categorizer(x_data, y_data, callbacks=callbacks)
-    categorizer.save_model(config.model['path'] + config.model['categorization_model']['name'])
+    categorizer.save_model(config.model['path'] + config.model['categorization_model_' + str(category_level)]['name'])
 
     if evaluate:
         log("Evaluate model")
         # Evaluate model #
-        categorizer = get_categorization_model(None, config.model['path'] + config.model['categorization_model']['name'])
+        categorizer = get_categorization_model(None, config.model['path'] + config.model['categorization_model_' + str(category_level)]['name'])
         categorizer.evaluate_categorizer(x_val_data, y_val_data)
 
 
 if __name__ == '__main__':
-    train_and_store_model(evaluate=True)
+    for i in [1, 3, 4]:
+        train_and_store_model(evaluate=True, category_level=i)
