@@ -2,6 +2,7 @@ __pycache__
 *.pyc
 predictions/
 learning/data/*
+!learning/data/stop_words.txt
 learning/trained-models/
 .cache/
 .ipynb_checkpoints/
