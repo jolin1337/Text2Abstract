@@ -42,7 +42,7 @@ $ python learning/model.py
 python evaluation/evaluate_models.py
 
 # takes the result.csv and calculates different accuracies depending on the probability used for filtering out predictions.
-ruby evaluation/calculate_accuracy.rb
+ruby evaluation/calculate_accuracy.rb evaluation/results_20191125-114435-stopwords.csv 
 ```
 
 ## To run a local webservice
