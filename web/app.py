@@ -93,7 +93,8 @@ def transformation():
     prediction = categorize_text(text)
     store_prediction(text, prediction, categories, article_id)
     return create_response(json.dumps({
-        **prediction
+        'category': prediction['category']
+        # **prediction
     }), 200)
 
 
