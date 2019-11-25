@@ -2,6 +2,7 @@ import csv
 import json
 import web.categorizer_service
 import os
+import time
 
 from multiprocessing import Pool
 
@@ -12,8 +13,8 @@ def categorize_text(texts, categories):
         print('fail')
 
 
-def write(dicts, write_header=False):
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'result.csv'), 'a') as csvfile:
+def write(file_name, dicts, write_header=False):
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name), 'a') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=dicts[0].keys())
         if write_header:
             writer.writeheader()
@@ -86,13 +87,14 @@ def predict(articles):
 if __name__ == '__main__':
     data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../learning/data/RYF-QPR_articles.jsonl')
     counter = 0
+    file_name = f'results_{time.strftime("%Y%m%d-%H%M%S")}.csv'
     write_header = True
     with open(data_path, 'r', encoding='utf-8') as file:
-        for lines in batch(file.readlines(), 2000):
+        for lines in batch(file.readlines(), 6000):
             articles = list(map(lambda l: json.loads(l), lines))
             predictions = predict(articles)
             counter += len(predictions)
             print(counter)
             
-            write(predictions, write_header)
+            write(file_name, predictions, write_header)
             write_header = False
