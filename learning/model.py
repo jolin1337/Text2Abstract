@@ -102,7 +102,7 @@ def filter_article_category_lengths(articles, category_level):
         yield article, categories
 
 def get_articles(category_level):
-    file = open(config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
+    file = open(config.data['path'] + config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
     reader = jsonlines.Reader(file)
     data = list(reader)
     articles = [(a['headline'] + ' ' + a['body'], a['category_ids']) for a in data]

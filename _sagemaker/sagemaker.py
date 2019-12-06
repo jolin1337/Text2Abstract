@@ -14,7 +14,8 @@ if __name__ == '__main__':
             app.run(host='0.0.0.0', port=os.environ.get('PORT', 8080))
         if 'train' in sys.argv:
             from learning import config, model
-            model.train_and_store_model()
+            for i in [1, 3, 4]:
+                model.train_and_store_model(evaluate=False, category_level=i)
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the
         # DescribeTrainingJob result.
