@@ -13,7 +13,7 @@ Parameters:
   ProductionInstanceType:
     Description: Instance type to launch trained production model endpoint with. 
     Type: String
-    Default: ml.m4.large
+    Default: ml.m4.xlarge
   ModelPrefix: 
     Description: Prefix to prepend to resources created for the model.
     Type: String
