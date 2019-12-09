@@ -1,0 +1,56 @@
+Resources:
+  AutoCategorizationRepo:
+    Type: AWS::SageMaker::CodeRepository
+    Properties:
+      CodeRepositoryName: autocategorization-prod-repo
+      GitConfig:
+        Branch: master
+        RepositoryUrl: https://github.com/mittmedia/auto-categorization
+        SecretArn: arn:aws:secretsmanager:eu-west-1:682250509414:secret:AmazonSageMaker-Sagemaker-autocategorization-github-VJTgb2
+  AutoCategorizationNotebook:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties: 
+      DirectInternetAccess: Enabled
+      DefaultCodeRepository: !GetAtt AutoCategorizationRepo.CodeRepositoryName
+      InstanceType: ml.t2.medium
+      NotebookInstanceName: autocategorization-prod-notebook
+      RoleArn: !GetAtt CreateSagemakerNotebookRole.Arn
+      RootAccess: Enabled
+      VolumeSizeInGB: 5
+  CreateSagemakerNotebookRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CreateSagemakerNotebookRole
+      Description: Role for creating the notebook and code repository for auto categorization
+      AssumeRolePolicyDocument: {
+        "Version": "2012-10-17",
+        "Statement": [
+        {
+          "Sid": "VisualEditor0",
+          "Effect": "Allow",
+          "Principal": {
+                "Service": "sagemaker.amazonaws.com"
+            },
+          "Action": "sts:AssumeRole"
+        }
+        ]
+      }
+  CreateSagemakerNotebookPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CreateSagemakerNotebookPolicy
+      Roles:
+        - CreateSagemakerNotebookRole
+      PolicyDocument: {
+        "Version": "2012-10-17",
+        "Statement": [
+        {
+          "Sid": "VisualEditor0",
+          "Effect": "Allow",
+          "Action": [
+            "sagemaker:*"
+          ],
+          "Resource": "*"
+        }
+        ]
+      }

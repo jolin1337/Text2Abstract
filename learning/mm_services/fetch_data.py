@@ -123,22 +123,22 @@ def get_short_uuid(limit=5000, offset=0):
         #    break
 
 
-def get_arg(index):
-    try:
-        sys.argv[index]
-    except IndexError:
-        if index == 1:
-            return config.data['path'] + config.data['articles']
-        else:
-            if index == 2:
-                return config.data['path']+ config.data['target_categories']
-            else:
-                if index == 3:
-                    return config.data['path'] + config.data['stop_words']
-                else:
-                    return ''
-    else:
-        return sys.argv[index]
+# def get_arg(index):
+#     try:
+#         sys.argv[index]
+#     except IndexError:
+#         if index == 1:
+#             return config.data['path'] + config.data['articles']
+#         else:
+#             if index == 2:
+#                 return config.data['path']+ config.data['target_categories']
+#             else:
+#                 if index == 3:
+#                     return config.data['path'] + config.data['stop_words']
+#                 else:
+#                     return ''
+#     else:
+#         return sys.argv[index]
 
 if __name__ == '__main__':
     main(sys.argv[1]) # send a category level

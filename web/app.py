@@ -11,7 +11,7 @@ import json
 import web.tasks
 import learning.model as model
 from learning.mm_services import content_service
-from categorizer_service import categorize_text, CategorizingArticleException, AppException
+from web.categorizer_service import categorize_text, CategorizingArticleException, AppException
 
 load_dotenv(find_dotenv())
 app = Flask(__name__, static_folder='/', static_url_path='/sps', template_folder='pages')
@@ -86,7 +86,7 @@ def transformation():
     categories = None
     article_id = None
 
-    text = f"{article_json['headline']} {article_json['body']}"
+    text = article_json['headline'] + " " + article_json['body']
     categories = article_json['category_hierarchical_ids']
     article_id = article_json.get('uuid', None)
 

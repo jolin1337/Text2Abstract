@@ -68,7 +68,6 @@ def create_training_job(name, train_set_uri, container, s3_output_path):
                             'S3DataDistributionType': 'FullyReplicated'
                         }
                     },
-                    'ContentType': 'text/csv',
                     'CompressionType': 'None'
                 }
             ],

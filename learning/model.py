@@ -173,3 +173,4 @@ def train_and_store_model(evaluate=False, category_level=None):
 if __name__ == '__main__':
     for i in [1, 3, 4]:
         train_and_store_model(evaluate=True, category_level=i)
+        config.model['vec_model']['train'] = False

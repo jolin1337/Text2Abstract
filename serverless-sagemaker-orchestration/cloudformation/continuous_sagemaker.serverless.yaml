@@ -9,11 +9,11 @@ Parameters:
   TrainingInstanceType:
     Description: Instance type to launch trained production model endpoint with. 
     Type: String
-    Default: ml.c4.xlarge
+    Default: ml.m4.16xlarge
   ProductionInstanceType:
     Description: Instance type to launch trained production model endpoint with. 
     Type: String
-    Default: ml.c4.xlarge
+    Default: ml.m4.large
   ModelPrefix: 
     Description: Prefix to prepend to resources created for the model.
     Type: String
@@ -114,6 +114,16 @@ Resources:
                 Sid: "AllowCrossAccountPush"
                 Action:
                   - "ecr:*"
+                Resource: "*"
+        -
+          PolicyName: SageMakerCloudWatchPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Sid: "Allow"
+                Action:
+                  - "logs:*"
                 Resource: "*"
 
   SageMakerStateMachine:

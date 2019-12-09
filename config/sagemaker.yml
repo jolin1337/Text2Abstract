@@ -23,7 +23,7 @@ model:
   vec_model:
     train: True
     type: 'word2vec'
-    name: 'gensim_models/word2vec_MM_new_category_tree.model'
+    name: 'word2vec_MM_new_category_tree.model'
 
   categorization_model_1:
     name: 'RYF-lstm-multi-categorizer-new-category-tree.model'
@@ -50,7 +50,7 @@ model:
     articles: RYF-QPR_articles.jsonl
 
 data:
-  path: '/opt/ml/input/data/training/'
+  path: '/opt/ml/input/data/train/'
   stop_words: 'stop_words.txt'
   articles: 'new_metadata_articles.jsonl'
   target_categories: 'new_top_categories.txt'
