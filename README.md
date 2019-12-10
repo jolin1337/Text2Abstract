@@ -57,6 +57,10 @@ $ ./build_and_push.sh sagemaker-auto-categorization
 $ jupyter notebook
 ```
 
+## Test endpoint
+
+https://localhost:8080/invocations
+
 ## Deploy 
 
 To deploy the project stack package the Cloudformation template and then deploy it

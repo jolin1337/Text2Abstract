@@ -293,15 +293,10 @@ Resources:
             },
             "DeploymentCompleted": {
               "Type": "Pass",
-              "Next": "UpdateParameters"
+              "End": true
             },
             "DeploymentFailed": {
               "Type": "Fail"
-            },
-            "UpdateParameters": {
-              "Type": "Task",
-              "Resource": "${UpdateParametersFunction.Arn}",
-              "End": true
             }
           }
         }
@@ -352,22 +347,6 @@ Resources:
                 - "sagemaker:DescribeEndpoint"
                 - "sagemaker:DescribeTrainingJob"
               Resource: "*"
-
-  UpdateParametersFunction:
-    Type: 'AWS::Serverless::Function'
-    Properties:
-      Handler: update_parameters.lambda_handler
-      Runtime: python3.6
-      CodeUri: ../lambda_functions/
-      Description: 'Updates SSM Parameter Store parameter to reflect date of latest data file trained on.'
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "ssm:PutParameter"
-              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SSMParameter}'
 
   DeployModelFunction:
     Type: 'AWS::Serverless::Function'
