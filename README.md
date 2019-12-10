@@ -57,4 +57,19 @@ $ ./build_and_push.sh sagemaker-auto-categorization
 $ jupyter notebook
 ```
 
+## Deploy 
+
+To deploy the project stack package the Cloudformation template and then deploy it
+
+```
+$ aws cloudformation package --template serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml --s3-bucket sagemaker-autocategorization > serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml.package
+$ aws cloudformation deploy --stack-name autocategorizationtest --template-file serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml.package --capabilities  CAPABILITY_NAMED_IAM
+```
+
+Then deploy the ECR container which will serve as the model's container, needed to create the endpoint
+
+```
+$ ./_sagemaker/build_and_push.sh autocategorization
+```
+
 ## For more guides look in the notebooks found in the `notebooks` folder

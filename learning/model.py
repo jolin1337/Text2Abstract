@@ -120,6 +120,7 @@ def get_vector_model(x_data=None, y_data=None, **params):
     if config.model['vec_model']['type'] == 'doc2vec':
         vec_model = Doc2vecModel
     random.seed(0)
+    vec = None
     vec_file = config.model['path'] + config.model['vec_model']['name']
     if config.model['vec_model']['train']:
         vec = vec_model(deterministic=params.get('deterministic', False))
