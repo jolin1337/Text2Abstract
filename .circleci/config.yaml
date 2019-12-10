@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID_MM
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY_MM
+    steps:
+      - checkout
+      - run: ./_sagemaker/build_and_push.sh autocategorization
+      - run: aws cloudformation package --template serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml --s3-bucket sagemaker-autocategorization > serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml.package
+      - run: aws cloudformation deploy --stack-name autocategorizationtest --template-file serverless-sagemaker-orchestration/cloudformation/continuous_sagemaker.serverless.yaml.package --capabilities  CAPABILITY_NAMED_IAM
