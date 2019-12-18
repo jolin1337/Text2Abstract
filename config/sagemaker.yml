@@ -26,7 +26,7 @@ model:
     type: 'blstm'
     model_checkpoint: 'checkpoint'
     category_level: 4
-    category_hierarchical_prefix: RYF-QPR-XXX
+    category_hierarchical_prefix: RYF-QPR
     articles: RYF-QPR_articles.jsonl
 
 data:
