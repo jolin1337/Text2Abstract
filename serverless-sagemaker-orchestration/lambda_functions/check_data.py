@@ -6,9 +6,6 @@ import os
 # Prefix to give to training jobs, models, and endpoint configs, and endpoint name
 MODEL_PREFIX = os.environ['MODEL_PREFIX'] 
 
-# Name of Parameter Store key corresponding to value of last successful training job date
-LAST_TRAIN_PARAM = '/models/{}/train/latest'.format(MODEL_PREFIX) 
-
 # Name of bucket containing training data and to output model artifacts to
 BUCKET = os.environ['BUCKET'] # Name of bucket
 
@@ -36,7 +33,6 @@ def lambda_handler(event, context):
         'time': time,
         'train_set_uri': TRAIN_SET_PATH,
         's3_output_path': OUTPUT_PATH,
-        'last_train_param': LAST_TRAIN_PARAM,
         'endpoint': MODEL_PREFIX,
         'no_new_data': False
     }

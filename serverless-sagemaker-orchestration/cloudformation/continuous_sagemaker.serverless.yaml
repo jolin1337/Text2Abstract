@@ -66,12 +66,10 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: SageMakerExecutionRole
-      Description: Role for creating the notebook and code repository for auto categorization
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
           -
-            Sid: "VisualEditor0"
             Effect: "Allow"
             Action:
               - "sts:AssumeRole"
@@ -88,7 +86,6 @@ Resources:
                 Effect: "Allow"
                 Action:
                   - "sagemaker:*"
-                Sid: "VisualEditor0"
                 Resource: "*"
         - 
           PolicyName: SageMakerBucketPolicy
@@ -104,7 +101,7 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "ssm:GetParameter"
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SSMParameter}'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}'
         -
           PolicyName: SageMakerRepositoryPolicy
           PolicyDocument:
@@ -323,19 +320,11 @@ Resources:
                   - "lambda:InvokeFunction"
                 Resource: "*"
 
-  SSMParameter:
-    Type: "AWS::SSM::Parameter"
-    Properties: 
-      Name: !Sub '/models/${ModelPrefix}/train/latest'
-      Description: Stores the date of latest training data model was run on.
-      Type: String
-      Value: 0
-
   GetStatusFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: get_status.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.7
       CodeUri: ../lambda_functions/
       Description: 'Checks status of SageMaker training jobs and endpoint deployment'
       Policies:
@@ -352,7 +341,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: deploy_model.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.7
       CodeUri: ../lambda_functions/
       Description: 'Deploys trained model to invokable endpoint'
       Timeout: 10
@@ -381,7 +370,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: start_training_job.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.7
       CodeUri: ../lambda_functions/
       Description: 'Starts model training job'
       Environment:
@@ -406,7 +395,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: check_data.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.7
       CodeUri: ../lambda_functions/
       Description: 'Checks to see if new training data has been uploaded since last training job and adds data found in training interval to training manifest'
       Timeout: 10
@@ -427,7 +416,7 @@ Resources:
             - Effect: "Allow"
               Action:
                 - "ssm:GetParameter"
-              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SSMParameter}'
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}'
 
 Outputs:
   S3BucketName:
