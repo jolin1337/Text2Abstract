@@ -64,14 +64,6 @@ def main(category_level):
     articles, categories = getArticles(prefix)
     print(categories)
 
-    # open(stop_words_file_name, 'a').close()
-
-    # fp = open(categories_file_name, 'w')
-    # for k in categories.keys():
-    #     fp.write(k + '\n')
-
-    # fp.close()
-
     with jsonlines.open(model['articles'], mode='w') as writer:
       writer.write_all(list(articles))
 
@@ -118,27 +110,6 @@ def get_short_uuid(limit=5000, offset=0):
             traceback.print_exc()
             print("Error here: ", i, article)
             continue
-        #if len(article_text.split()) < 100:
-        #    print(article['article_uuid'])
-        #    break
-
-
-# def get_arg(index):
-#     try:
-#         sys.argv[index]
-#     except IndexError:
-#         if index == 1:
-#             return config.data['path'] + config.data['articles']
-#         else:
-#             if index == 2:
-#                 return config.data['path']+ config.data['target_categories']
-#             else:
-#                 if index == 3:
-#                     return config.data['path'] + config.data['stop_words']
-#                 else:
-#                     return ''
-#     else:
-#         return sys.argv[index]
 
 if __name__ == '__main__':
-    main(sys.argv[1]) # send a category level
+    main(sys.argv[1])
