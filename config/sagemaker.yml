@@ -3,16 +3,37 @@ model:
   vec_model:
     train: True
     type: 'word2vec'
-    name: 'word2vec_MM.model'
-  categorization_model:
-    name: 'lstm-multi-categorizer-larger.model'
+    name: 'word2vec_MM_new_category_tree.model'
+
+  categorization_model_1:
+    name: 'RYF-lstm-multi-categorizer-new-category-tree.model'
     type: 'blstm'
-    model_checkpoint: False
+    model_checkpoint: 'checkpoint'
+    category_level: 1
+    category_hierarchical_prefix: RYF
+    articles: RYF_articles.jsonl
+
+  categorization_model_3:
+    name: 'RYF-QPR-lstm-multi-categorizer-new-category-tree.model'
+    type: 'blstm'
+    model_checkpoint: 'checkpoint'
+    category_level: 3
+    category_hierarchical_prefix: RYF-QPR
+    articles: RYF-QPR_articles.jsonl
+
+  categorization_model_4:
+    name: 'RYF-QPR-XXX-lstm-multi-categorizer-new-category-tree.model'
+    type: 'blstm'
+    model_checkpoint: 'checkpoint'
+    category_level: 4
+    category_hierarchical_prefix: RYF-QPR
+    articles: RYF-QPR_articles.jsonl
+
 data:
-  path: '/opt/ml/input/data/training/'
-  articles: 'new_metadata_articles.json'
+  path: '/opt/ml/input/data/train/'
   stop_words: 'stop_words.txt'
+  articles: 'new_metadata_articles.jsonl'
   target_categories: 'new_top_categories.txt'
   min_word_count: 15 #minimum words required to make an accurate autocategorzation prediction.
 
-verbose: False
+verbose: True

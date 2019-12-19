@@ -10,7 +10,6 @@ else:
     VecModel = Word2vecModel
 vec_file = config.model['path'] + config.model['vec_model']['name']
 
-
 class AppException(Exception):
     def __init__(self, message, status_code):
         super(AppException, self).__init__(message)
@@ -60,7 +59,7 @@ def categorize_texts(texts, article_categories):
     texts = list(map(striphtml, texts))
     predictions = {}
     for category_level in [1, 3, 4]:
-        categorized = CategorizerService(category_level).categorize_texts(texts)
+        categorized = categorizer_services[category_level].categorize_texts(texts)
         length =  (category_level + 1) * 3 + category_level
         categories_for_level = list(map(lambda categories: list(filter(lambda c: len(c) == length, categories)), article_categories))
         predictions[category_level] = list(zip(categories_for_level, categorized))
@@ -68,13 +67,18 @@ def categorize_texts(texts, article_categories):
 
 
 def categorize_text(text):
+    texts = [text]
     predictions = {}
     for category_level in [1, 3, 4]:
-        predictions[category_level] = CategorizerService(category_level).categorize_text(text)[0:7]
+        predictions[category_level] = categorizer_services[category_level].categorize_texts(texts)[0][0:7]
 
     category = None
     top_predictions = [predictions[level][0] for level in predictions]
-    if top_predictions[0][1] > 0.7:
+    for prediction in top_predictions:
+        if prediction[1] > 0.5:
+            category = prediction[0]
+
+    if top_predictions[0][1] > 0.5:
         category = top_predictions[0][0]
         if top_predictions[0][0] in top_predictions[1][0] and top_predictions[1][1] > 0.7:
             category = top_predictions[1][0]
@@ -85,6 +89,12 @@ def categorize_text(text):
         'category': category,
         'predictions': [{ 'category_level': level, 'predictions': predictions[level] } for level in predictions]
     }
+
+categorizer_services = {}
+
+for category_level in [1, 3, 4]:
+    cat_service = CategorizerService(category_level)
+    categorizer_services[category_level] = cat_service
 
 if __name__ == '__main__':
     import pprint

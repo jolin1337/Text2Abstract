@@ -102,7 +102,7 @@ def filter_article_category_lengths(articles, category_level):
         yield article, categories
 
 def get_articles(category_level):
-    file = open(config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
+    file = open(config.data['path'] + config.model['categorization_model_' + str(category_level)]['articles'], 'r', encoding='utf-8')
     reader = jsonlines.Reader(file)
     data = list(reader)
     articles = [(a['headline'] + ' ' + a['body'], a['category_ids']) for a in data]
@@ -120,6 +120,7 @@ def get_vector_model(x_data=None, y_data=None, **params):
     if config.model['vec_model']['type'] == 'doc2vec':
         vec_model = Doc2vecModel
     random.seed(0)
+    vec = None
     vec_file = config.model['path'] + config.model['vec_model']['name']
     if config.model['vec_model']['train']:
         vec = vec_model(deterministic=params.get('deterministic', False))
@@ -173,3 +174,4 @@ def train_and_store_model(evaluate=False, category_level=None):
 if __name__ == '__main__':
     for i in [1, 3, 4]:
         train_and_store_model(evaluate=True, category_level=i)
+        config.model['vec_model']['train'] = False

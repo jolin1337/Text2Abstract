@@ -6,7 +6,10 @@ learning/data/*
 learning/trained-models/
 .cache/
 .ipynb_checkpoints/
+.DS_Store
 
 venv/
 .env
 evaluation/result.csv
+
+*.package
