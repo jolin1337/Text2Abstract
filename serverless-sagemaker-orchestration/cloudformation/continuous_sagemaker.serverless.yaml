@@ -98,10 +98,6 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::${BucketName}/*'
                   - !Sub 'arn:aws:s3:::${BucketName}'
-              - Effect: "Allow"
-                Action:
-                  - "ssm:GetParameter"
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}'
         -
           PolicyName: SageMakerRepositoryPolicy
           PolicyDocument:
@@ -413,10 +409,6 @@ Resources:
               Resource:
                 - !Sub 'arn:aws:s3:::${BucketName}/*'
                 - !Sub 'arn:aws:s3:::${BucketName}'
-            - Effect: "Allow"
-              Action:
-                - "ssm:GetParameter"
-              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}'
 
 Outputs:
   S3BucketName:
