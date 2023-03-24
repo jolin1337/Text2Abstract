@@ -6,7 +6,7 @@ keras==2.2.5
 gensim
 psycopg2-binary
 numpy
-tensorflow==1.14.0
+tensorflow==2.11.1
 jsonlines
 sklearn
 pandas
